@@ -3,7 +3,7 @@ import { EditOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import EditOrderModal from '../Orders/EditOrderModal';
 
-function EditOrder({ order, fetchOrders }) {
+function EditOrder({ order, fetchOrders, refreshOrders }) {
   const [open, setOpen] = useState(false);
 
   const handleClick = (e) => {
@@ -13,6 +13,12 @@ function EditOrder({ order, fetchOrders }) {
 
   const handleClose = () => {
     setOpen(false);
+    if (fetchOrders) {
+      fetchOrders();
+    }
+    if (refreshOrders) {
+      refreshOrders();
+    }
   };
 
   return (

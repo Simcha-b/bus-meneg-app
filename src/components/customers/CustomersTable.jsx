@@ -18,6 +18,7 @@ import OrderDetails from "./OrderDetails";
 import { Box } from "@mui/system";
 import EditOrder from "../order-actions/EditOrder";
 import DeleteOrder from "../order-actions/DeleteOrder";
+import { EyeOutlined } from '@ant-design/icons';
 
 const CustomersTable = () => {
   const [customers, setCustomers] = useState([]);
@@ -131,6 +132,12 @@ const CustomersTable = () => {
     fetchCustomers();
   }, []);
 
+  // פונקציה לרענון ההזמנות של לקוח ספציפי
+  const refreshOrders = async (customerId) => {
+    const updatedOrders = await getOrdersByCustomerId(customerId);
+    setOrders(updatedOrders);
+  };
+
   //columns for the main table
   const columns = [
     {
@@ -138,18 +145,31 @@ const CustomersTable = () => {
       dataIndex: "name",
       key: "name",
       width: "20%",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      filterSearch: true,
+      filters: [...new Set(customers.map(customer => customer.name))]
+        .map(name => ({ text: name, value: name })),
+      onFilter: (value, record) => record.name === value,
     },
     {
       title: "אימייל",
       dataIndex: "email",
       key: "email",
       width: "15%",
+      filterSearch: true,
+      filters: [...new Set(customers.map(customer => customer.email))]
+        .map(email => ({ text: email, value: email })),
+      onFilter: (value, record) => record.email === value,
     },
     {
       title: "טלפון",
       dataIndex: "phone",
       key: "phone",
       width: "10%",
+      filterSearch: true,
+      filters: [...new Set(customers.map(customer => customer.phone))]
+        .map(phone => ({ text: phone, value: phone })),
+      onFilter: (value, record) => record.phone === value,
     },
     {
       title: "פעולות",
@@ -163,7 +183,7 @@ const CustomersTable = () => {
           הצג פירוט נסיעות
         </Button>
       ),
-      width: "20%",
+      width: "15%",
     },
     {
       title: "סטטוס",
@@ -177,6 +197,12 @@ const CustomersTable = () => {
           </Tag>
         );
       },
+      filters: [
+        { text: "חוב פתוח", value: "חוב פתוח" },
+        { text: "שולם", value: "שולם" },
+        { text: "אין נסיעות", value: null }
+      ],
+      onFilter: (value, record) => record.payment_status === value,
     },
     {
       title: "מצב תשלומים",
@@ -195,6 +221,7 @@ const CustomersTable = () => {
         }
         return "שולם";
       },
+      sorter: (a, b) => (a.totalDebt || 0) - (b.totalDebt || 0),
     },
     {
       title: "ערוך פרטים",
@@ -209,58 +236,90 @@ const CustomersTable = () => {
   //columns for the orders table
   const ordersColumns = [
     {
-      title: "ID",
-      dataIndex: "order_id",
-      key: "order_id",
-    },
-    {
       title: "תאריך",
       dataIndex: "order_date",
       key: "date",
       render: (date) => new Date(date).toLocaleDateString("he-IL"),
+      sorter: (a, b) => new Date(a.order_date) - new Date(b.order_date),
+      filterSearch: true,
+      filters: [...new Set(orders.map(order => 
+        new Date(order.order_date).toLocaleDateString("he-IL")))
+      ].map(date => ({ text: date, value: date })),
+      onFilter: (value, record) => 
+        new Date(record.order_date).toLocaleDateString("he-IL") === value,
     },
     {
       title: "פרטי הנסיעה",
       dataIndex: "trip_details",
       key: "trip_details",
+      filterSearch: true,
+      filters: [...new Set(orders.map(order => order.trip_details))]
+        .map(detail => ({ text: detail, value: detail })),
+      onFilter: (value, record) => record.trip_details === value,
     },
     {
       title: "מחיר לאוטובוס",
       dataIndex: "price_per_bus_customer",
       key: "price",
+      sorter: (a, b) => a.price_per_bus_customer - b.price_per_bus_customer,
     },
     {
       title: "כמות אוטובוסים",
       dataIndex: "bus_quantity",
       key: "quantity",
+      sorter: (a, b) => a.bus_quantity - b.bus_quantity,
     },
     {
       title: "סה״כ לתשלום",
       key: "total",
       render: (_, record) => `${record.price_per_bus_customer * record.bus_quantity} ₪`,
+      sorter: (a, b) => 
+        (a.price_per_bus_customer * a.bus_quantity) - 
+        (b.price_per_bus_customer * b.bus_quantity),
+    },
+    {
+      title: "מס' חשבונית",
+      dataIndex: "invoice",
+      key: "invoice",
+      filterSearch: true,
+      filters: [...new Set(orders.filter(order => order.invoice).map(order => order.invoice))]
+        .map(invoice => ({ text: invoice, value: invoice })),
+      onFilter: (value, record) => record.invoice === value,
     },
     {
       title: "מצב הזמנה",
       dataIndex: "paid",
       key: "paid",
       render: (paid) => (paid ? "שולם" : "לא שולם"),
+      filters: [
+        { text: "שולם", value: true },
+        { text: "לא שולם", value: false },
+      ],
+      onFilter: (value, record) => record.paid === value,
     },
     {
       title: "פעולות",
       key: "actions",
       render: (_, record) => (
         <Space>
-          <EditOrder order={record} />
-          <DeleteOrder order_id={record.order_id} fetchOrders={() => handleShowOrders({ customer_id: record.customer_id })} />
+          <Button 
+            icon={<EyeOutlined />} 
+            onClick={() => handleOrderClick(record)}
+            title="צפה בפרטי נסיעה"
+          />
+          <EditOrder 
+            order={record} 
+            fetchOrders={() => handleShowOrders({ customer_id: record.customer_id })}
+            refreshOrders={() => refreshOrders(record.customer_id)} 
+          />
+          <DeleteOrder 
+            order_id={record.order_id} 
+            fetchOrders={() => handleShowOrders({ customer_id: record.customer_id })} 
+          />
         </Space>
       ),
     },
   ];
-
-  const handleDeleteOrder = (order) => {
-    // Implement delete logic here, e.g., call an API to delete the order
-    console.log("Deleting order:", order);
-  };
 
   return (
     <ConfigProvider direction="rtl" locale={heIL}>
@@ -292,10 +351,7 @@ const CustomersTable = () => {
             dataSource={orders}
             columns={ordersColumns}
             pagination={false}
-            onRow={(record) => ({
-              onClick: () => handleOrderClick(record),
-              style: { cursor: "pointer" },
-            })}
+            scroll={{ x: true }}
           />
         </Modal>
         <Modal

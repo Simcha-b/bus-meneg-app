@@ -51,9 +51,6 @@ function Orders() {
           <ToggleButton value="past">
             הזמנות לפי חודש
           </ToggleButton>
-          <ToggleButton value="all">
-            כל ההזמנות
-          </ToggleButton>
         </ToggleButtonGroup>
       </Box>
 

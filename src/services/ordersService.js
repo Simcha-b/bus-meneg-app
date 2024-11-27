@@ -81,7 +81,10 @@ export const updateOrder = async (id, body) => {
     },
     body: JSON.stringify(body),
   });
+  console.log(body);
+  
   const data = await response.json();
+  console.log(data);
   return data;
 };
 

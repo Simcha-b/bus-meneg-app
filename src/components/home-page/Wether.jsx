@@ -9,7 +9,7 @@ function Wether() {
   const fetchWether = async () => {
     try {
       const response = await fetch(
-        `http://api.weatherapi.com/v1/current.json?key=${WETHER_API_KEY}&q=Beit-Shemesh&aqi=no`,
+        `https://api.weatherapi.com/v1/current.json?key=${WETHER_API_KEY}&q=Beit-Shemesh&aqi=no`,
         {
           method: "GET",
         }

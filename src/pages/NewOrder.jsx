@@ -314,12 +314,19 @@ function NewOrder({ orderId, isModal, onClose }) {
                 <Box
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: "auto 1fr",
+                    gridTemplateColumns: "1fr auto 1fr",
                     gap: 2,
                     alignItems: "center",
-                    gridColumn: "span 2",
+                    gridColumn: "span 3",
                   }}
                 >
+                  <TextField
+                    id="invoice"
+                    label="מספר חשבונית"
+                    variant="outlined"
+                    value={formData.invoice || ""}
+                    onChange={handleInputChange}
+                  />
                   <FormControlLabel
                     control={
                       <Checkbox

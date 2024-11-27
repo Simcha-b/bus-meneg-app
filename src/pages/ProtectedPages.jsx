@@ -5,9 +5,9 @@ function ProtectedPages() {
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
 
-  // if (!user || !user.token) {
-  //   return <Navigate to="/login" />;
-  // }
+  if (!user || !user.token) {
+    return <Navigate to="/login" />;
+  }
 
   return <Outlet />;
 }

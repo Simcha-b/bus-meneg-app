@@ -18,12 +18,16 @@ const OrderDetails = ({ order, fetchOrders }) => {
         {/* מידע כספי - לקוח */}
         <Descriptions.Item label="מחיר לאוטובוס">₪{order.price_per_bus_customer}</Descriptions.Item>
         <Descriptions.Item label="תשלומים נוספים">₪{order.extra_pay_customer}</Descriptions.Item>
+        <Descriptions.Item label="סה''כ לתשלום">₪{Number(order.price_per_bus_customer)*Number(order.bus_quantity)+Number(order.extra_pay_customer)}</Descriptions.Item>
+        <Descriptions.Item label="מספר חשבונית">{order.invoice}</Descriptions.Item>
         <Descriptions.Item label='סה"כ שולם'>₪{order.total_paid_customer}</Descriptions.Item>
         <Descriptions.Item label="סטטוס תשלום">{order.paid ? "שולם" : "לא שולם"}</Descriptions.Item>
 
         {/* מידע כספי - ספק */}
         <Descriptions.Item label="מחיר ספק לאוטובוס">₪{order.price_per_bus_company}</Descriptions.Item>
+        <Descriptions.Item label="מחיר ספק">₪{Number(order.price_per_bus_company)*Number(order.bus_quantity)}</Descriptions.Item>
         <Descriptions.Item label="תשלומים נוספים לספק">₪{order.extra_pay_company}</Descriptions.Item>
+        <Descriptions.Item label="סה''כ לתשלום לספק">₪{Number(order.price_per_bus_company)*Number(order.bus_quantity)+Number(order.extra_pay_company)}</Descriptions.Item>
         <Descriptions.Item label="הגיש חשבונית">{order.submitted_invoice ? "כן" : "לא"}</Descriptions.Item>
 
         {/* הערות */}

@@ -9,9 +9,7 @@ import {
   Button,
   Paper,
   Typography,
-  IconButton,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import {
   getOrderById,
   sendNewOrder,
@@ -142,13 +140,19 @@ function NewOrder({ orderId, isModal, onClose }) {
     if (!validateForm()) return;
 
     try {
+      // Format the date to YYYY-MM-DD before sending
+      const formattedData = {
+        ...formData,
+        order_date: formData.order_date ? new Date(formData.order_date).toISOString().split('T')[0] : null
+      };
+
       let response;
       if (orderId) {
-        response = await updateOrder(orderId, formData);
+        response = await updateOrder(orderId, formattedData);
         console.log("updateOrder" , response);
         
       } else {
-        response = await sendNewOrder(formData);
+        response = await sendNewOrder(formattedData);
         console.log("sendNewOrder");
         
       }
@@ -178,14 +182,14 @@ function NewOrder({ orderId, isModal, onClose }) {
   return (
     <Box sx={{ p: 2, maxWidth: 800, margin: "0 auto" }}>
       <Paper elevation={3} sx={{ p: 3, position: "relative" }}>
-        {isModal && (
+        {/* {isModal && (
           <IconButton
             onClick={onClose}
             sx={{ position: "absolute", top: 8, right: 8 }}
           >
             <CloseIcon />
           </IconButton>
-        )}
+        )} */}
         <Box
           component="form"
           noValidate
@@ -314,12 +318,19 @@ function NewOrder({ orderId, isModal, onClose }) {
                 <Box
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: "auto 1fr",
+                    gridTemplateColumns: "1fr auto 1fr",
                     gap: 2,
                     alignItems: "center",
-                    gridColumn: "span 2",
+                    gridColumn: "span 3",
                   }}
                 >
+                  <TextField
+                    id="invoice"
+                    label="מספר חשבונית"
+                    variant="outlined"
+                    value={formData.invoice || ""}
+                    onChange={handleInputChange}
+                  />
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -400,6 +411,13 @@ function NewOrder({ orderId, isModal, onClose }) {
               sx={{ width: "120px" }}
             >
               {orderId ? "עדכן" : "שלח"}
+            </Button>
+            <Button
+              onClick={onClose}
+              variant="outlined"
+              sx={{ width: "120px", ml: 2 }}
+            >
+              ביטול
             </Button>
           </Box>
         </Box>

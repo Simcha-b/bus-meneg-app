@@ -1,10 +1,9 @@
-import { Table, ConfigProvider, Tag, Input } from "antd";
+import { Table, ConfigProvider, Tag, Input, Spin } from "antd";
 import heIL from "antd/lib/locale/he_IL";
 import ExportToExcel from '../common/ExportToExcel';
 import {
   formatDate,
   getFutureOrders,
-  getOrders,
   getOrdersByDate,
 } from "../../services/ordersService";
 import { useEffect, useState } from "react";
@@ -41,11 +40,7 @@ function OrderTable({ tableType }) {
       } else if (tableType === "future") {
         const orders = await getFutureOrders();
         setData(orders);
-      } else {
-        const orders = await getOrders();
-        console.log(orders);
-        setData(orders);
-      }
+      } 
     } catch (error) {
       setError(error);
     } finally {
@@ -108,7 +103,11 @@ function OrderTable({ tableType }) {
   ];
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Spin size="large" />
+      </div>
+    );
   }
   if (error) {
     return <div>{error.message}</div>;
@@ -305,13 +304,6 @@ function OrderTable({ tableType }) {
               setExpandedRowKeys(newExpandedRows);
             },
           }}
-          onRow={(record) => ({
-            onClick: () => {
-              const isExpanded = expandedRowKeys.includes(record.key);
-              setExpandedRowKeys(isExpanded ? [] : [record.key]);
-            },
-            style: { cursor: "pointer" },
-          })}
           onChange={handleTableChange}
         />
       </ConfigProvider>

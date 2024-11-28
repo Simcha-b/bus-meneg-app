@@ -46,7 +46,7 @@ function Orders() {
           }}
         >
           <ToggleButton value="future">
-            הזמנות עתידיות
+            הזמנות לביצוע
           </ToggleButton>
           <ToggleButton value="past">
             הזמנות לפי חודש

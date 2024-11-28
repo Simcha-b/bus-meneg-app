@@ -1,80 +1,143 @@
-import React, { useState } from "react";
-import { Button, Select, Form, Input, DatePicker, Table } from "antd";
-import ExportToExcel from  "../components/common/ExportToExcel";
+import React, { useState } from 'react';
+import { Form, Input, DatePicker, Select, Button, Row, Col, Switch } from 'antd';
+import { ExportOutlined, SendOutlined } from '@ant-design/icons';
+// import axios from 'axios';
 
 const { Option } = Select;
 
 const Reports = () => {
-  const [reportType, setReportType] = useState(null);
-  const [filters, setFilters] = useState({});
-  const [generatedReports, setGeneratedReports] = useState([]);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const handleGenerateReport = () => {
-    // Generate report based on reportType and filters
-    const newReport = {
-      id: generatedReports.length + 1,
-      type: reportType,
-      filters,
-      date: new Date().toLocaleString(),
-    };
-    setGeneratedReports([...generatedReports, newReport]);
+  // הגדרת הפונקציה לשליחת הבקשה מהשרת
+  const handleSubmit = async (values) => {
+    // setLoading(true);
+    // try {
+    //   // שולח את הנתונים לשרת (פילטרים)
+    //   const response = await axios.get('https://your-api.com/reports', {
+    //     params: values, // שולח את כל הפילטרים
+    //   });
+    //   console.log('נתונים שהתקבלו:', response.data);
+    //   // כאן תוכל להציג את הנתונים או לעבד אותם
+    // } catch (error) {
+    //   console.error('שגיאה בשאיבת הנתונים:', error);
+    // }
+    // setLoading(false);
   };
 
-  const columns = [
-    {
-      title: "סוג דוח",
-      dataIndex: "type",
-      key: "type",
-    },
-    {
-      title: "פילטרים",
-      dataIndex: "filters",
-      key: "filters",
-      render: (filters) => JSON.stringify(filters),
-    },
-    {
-      title: "תאריך הנפקה",
-      dataIndex: "date",
-      key: "date",
-    },
-    {
-      title: "פעולות",
-      key: "actions",
-      render: (text, record) => (
-        <ExportToExcel
-        //   data={/* הנתונים של הדוח */}
-        //   columns={/* העמודות של הדוח */}
-          fileName={`report_${record.id}`}
-          buttonText="הורד"
-        />
-      ),
-    },
-  ];
+  const handleExport = () => {
+    console.log('Exporting report...');
+    // הוסף פונקציה לייצוא דוח
+  };
+
+  const handleSend = () => {
+    console.log('Sending report...');
+    // הוסף פונקציה לשליחת הדוח
+  };
 
   return (
-    <div>
-      <h1>עמוד דוחות</h1>
-      <Form layout="inline" onFinish={handleGenerateReport}>
-        <Form.Item label="סוג דוח" name="reportType" rules={[{ required: true, message: "נא לבחור סוג דוח" }]}>
-          <Select style={{ width: 200 }} onChange={(value) => setReportType(value)}>
-            <Option value="orders">דוח הזמנות</Option>
-            <Option value="customers">דוח לקוחות</Option>
-            {/* אפשרויות נוספות */}
-          </Select>
-        </Form.Item>
-        <Form.Item label="תאריך התחלה" name="startDate">
-          <DatePicker onChange={(date) => setFilters({ ...filters, startDate: date })} />
-        </Form.Item>
-        <Form.Item label="תאריך סיום" name="endDate">
-          <DatePicker onChange={(date) => setFilters({ ...filters, endDate: date })} />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            הנפק דוח
+    <div style={{ padding: 20 }}>
+      <h2>בצע דוח</h2>
+
+      <Form
+        form={form}
+        onFinish={handleSubmit}
+        layout="vertical"
+        style={{ maxWidth: 600 }}
+      >
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="תאריך" name="date">
+              <DatePicker style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="לקוח" name="client">
+              <Select placeholder="בחר לקוח">
+                <Option value="clientA">לקוח A</Option>
+                <Option value="clientB">לקוח B</Option>
+                {/* הוסף עוד אפשרויות */}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="מזמין" name="orderer">
+              <Input placeholder="הכנס שם מזמין" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="ספק" name="supplier">
+              <Select placeholder="בחר ספק">
+                <Option value="supplierA">ספק A</Option>
+                <Option value="supplierB">ספק B</Option>
+                {/* הוסף עוד אפשרויות */}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="סטטוס תמחור" name="pricing">
+              <Select placeholder="בחר סטטוס תמחור">
+                <Option value="withPricing">עם תמחור</Option>
+                <Option value="withoutPricing">ללא תמחור</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="חשבונית ללקוח" name="invoiceToClient" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={12}>
+            <Form.Item label="חשבונית לספק" name="invoiceToSupplier" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item label="סטטוס תשלום" name="paidStatus">
+              <Select placeholder="בחר סטטוס תשלום">
+                <Option value="paid">שולם</Option>
+                <Option value="partiallyPaid">שולם חלקית</Option>
+                <Option value="notPaid">לא שולם</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <div style={{ marginTop: 20 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            style={{ marginRight: 20 }}
+          >
+            בצע דוח
           </Button>
-        </Form.Item>
+          <Button
+            icon={<ExportOutlined />}
+            type="default"
+            onClick={handleExport}
+            style={{ marginRight: 20 }}
+          >
+            ייצא דוח
+          </Button>
+          <Button
+            icon={<SendOutlined />}
+            type="default"
+            onClick={handleSend}
+          >
+            שלח דוח
+          </Button>
+        </div>
       </Form>
-      <Table dataSource={generatedReports} columns={columns} rowKey="id" />
     </div>
   );
 };

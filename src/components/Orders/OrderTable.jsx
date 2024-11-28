@@ -17,6 +17,7 @@ const tagColors = {
   "לא שולם": "red",
   "שולם חלקית": "blue",
   "נתוני תשלום חסרים": "purple",
+  
 };
 
 function OrderTable({ tableType }) {

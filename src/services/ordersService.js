@@ -1,9 +1,7 @@
 const API_URL = process.env.REACT_APP_API_URL;
 
 export const getOrders = async () => {
-  const response = await fetch(`${API_URL}/api/orders`);
-  console.log(API_URL);
-  
+  const response = await fetch(`${API_URL}/api/orders`);  
   const data = await response.json();
   return data;
 };

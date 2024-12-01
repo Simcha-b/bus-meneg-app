@@ -7,7 +7,6 @@ import {
   Button,
   TextField,
   IconButton,
-  Input,
   Box,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -15,13 +14,13 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 import { addNewCustomer } from "../../services/customersService";
 
-const AddNewCustomer = ({ customers, setCustomers }) => {
+export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
   const [customer, setCustomer] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
-    contacts: [{ name: "", phone: "", email: "" }],
+    contacts: [{ name: "", contact_phone: "", contact_email: "" }],
   });
   const [open, setOpen] = useState(false);
 
@@ -68,10 +67,13 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
     });
   };
 
-  const handleSubmit = () => {
-    // Send customer data to the database
-    handleAddCustomer(customer);
-    handleClose();
+  const handleSubmit = async (values) => {
+    try {
+      const newCustomer = await addNewCustomer(values);
+      onSuccess?.(newCustomer);
+    } catch (error) {
+      // ...existing error handling...
+    }
   };
 
   return (
@@ -209,5 +211,3 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
     </>
   );
 };
-
-export default AddNewCustomer;

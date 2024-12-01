@@ -3,14 +3,23 @@ import heIL from "antd/lib/locale/he_IL";
 import ExportToExcel from '../common/ExportToExcel';
 import {
   formatDate,
-  getFutureOrders,
-  getOrdersByDate,
+  getOrders,
 } from "../../services/ordersService";
 import { useEffect, useState } from "react";
 import DeleteOrder from "../order-actions/DeleteOrder";
 import EditOrder from "../order-actions/EditOrder";
 import OrderDetails from "../customers/OrderDetails";
-import ChooseYearAndMonth from "./ChooseYearAndMonth";
+import dayjs from 'dayjs';
+import 'dayjs/locale/he';
+import weekOfYear from 'dayjs/plugin/weekOfYear'; 
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+// הוספת הפלאגינים הנדרשים
+dayjs.extend(weekOfYear);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(customParseFormat);
+dayjs.locale('he');
 
 const tagColors = {
   "חסר שיבוץ": "orange",
@@ -20,28 +29,44 @@ const tagColors = {
   
 };
 
-function OrderTable({ tableType }) {
+function OrderTable({ viewType, selectedDate }) {
   const [data, setData] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [tableFilters, setTableFilters] = useState({});
+
+  const filterOrdersByDate = (orders) => {
+    return orders.filter(order => {
+      const orderDate = dayjs(order.order_date);
+      return orderDate.isSame(selectedDate, viewType);
+    });
+  };
+
+  const getTableTitle = () => {    
+    switch(viewType) {
+      case 'day':
+        return `הזמנות ליום ${selectedDate.format('DD/MM/YYYY')}`;
+      case 'week': {
+        const startOfWeek = selectedDate.startOf('week');
+        const endOfWeek = selectedDate.endOf('week');
+        return `הזמנות ${startOfWeek.format('DD/MM')} - ${endOfWeek.format('DD/MM/YYYY')}`;
+      }
+      case 'month':
+        return `הזמנות לחודש ${selectedDate.format('MM/YYYY')}`;
+      default:
+        return 'הזמנות';
+    }
+  };
 
   const fetchOrders = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      if (tableType === "past") {
-        console.log(year, month);
-        const orders = await getOrdersByDate(year, month);
-        setData(orders);
-      } else if (tableType === "future") {
-        const orders = await getFutureOrders();
-        setData(orders);
-      } 
+      const orders = await getOrders();
+      const filteredOrders = filterOrdersByDate(orders);
+      setData(filteredOrders);
     } catch (error) {
       setError(error);
     } finally {
@@ -51,7 +76,7 @@ function OrderTable({ tableType }) {
 
   useEffect(() => {
     fetchOrders();
-  }, [tableType, year, month]);
+  }, [selectedDate, viewType]);
 
   const updateTags = (order) => {
     let tags = [];
@@ -113,11 +138,6 @@ function OrderTable({ tableType }) {
   if (error) {
     return <div>{error.message}</div>;
   }
-
-  const dataSource = data.map((item) => ({
-    ...item,
-    key: item.order_id,
-  }));
 
   const columns = [
     {
@@ -186,7 +206,7 @@ function OrderTable({ tableType }) {
       responsive: ["md"],
     },
     {
-      title: "תגיות",
+      title: "סטטוס",
       key: "tags",
       render: (_, record) => (
         <div>
@@ -223,41 +243,26 @@ function OrderTable({ tableType }) {
     },
   };
 
-  const handleTableChange = (pagination, filters, sorter) => {
+  const handleTableChange = (filters) => {
     setTableFilters(filters);
   };
 
   return (
     <div>
-      {tableType === "past" && (
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          justifyContent: 'center', 
-          marginBottom: '20px',
-          padding: '10px'
-        }}>
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '24px'
-          }}>
-            <h1 style={{ 
-              margin: 0,
-              fontSize: '24px',
-              fontFamily: 'Rubik, sans-serif',
-              fontWeight: '500'
-            }}>{`הזמנות חודש ${month}/${year}`}</h1>
-            
-            <ChooseYearAndMonth
-              year={year}
-              month={month}
-              setYear={setYear}
-              setMonth={setMonth}
-            />
-          </div>
-        </div>
-      )}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center',
+        justifyContent: 'center', 
+        marginBottom: '20px',
+        padding: '10px'
+      }}>
+        <h1 style={{ 
+          margin: 0,
+          fontSize: '24px',
+          fontFamily: 'Rubik, sans-serif',
+          fontWeight: '500'
+        }}>{getTableTitle()}</h1>
+      </div>
       
       <div style={{ 
         marginBottom: 16,
@@ -277,7 +282,7 @@ function OrderTable({ tableType }) {
         <ExportToExcel
           data={getFilteredData()}
           columns={exportColumns}
-          fileName={`הזמנות_${tableType}`}
+          fileName={`הזמנות_`}
           disabled={getFilteredData().length === 0}
           tableFilters={tableFilters}
         />

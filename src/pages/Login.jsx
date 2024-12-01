@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { TextField, Button, Box, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { checkLogin, loginWithGoogle, registerUser } from "../services/loginServis.js";
+import { checkLogin, loginUser, loginWithGoogle, registerUser } from "../services/loginServis.js";
 import "../css/login.css";
 
 function Login() {
@@ -9,21 +9,25 @@ function Login() {
   const [error, setError] = useState(null);
   const email = useRef();
   const password = useRef();
-  const username = useRef();
-  const [showRegister, setShowRegister] = useState(false);
+  // const username = useRef();
+  // const [showRegister, setShowRegister] = useState(false);
 
   // Handles the login process
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     try {
+      
       if (!email.current.value || !password.current.value) {
         throw new Error("נא למלא את כל השדות");
       }
-      const user = await checkLogin(
+      
+      const user = await loginUser(
         email.current.value,
         password.current.value
       );
+      console.log("User logged in:", user);
+      
       if (!user) throw new Error("שם משתמש או סיסמה לא נכונים");
       navigate("/home");
     } catch (error) {
@@ -32,36 +36,36 @@ function Login() {
   };
 
   // Handles login with Google
-  const handleGoogleLogin = async () => {
-    try {
-      const user = await loginWithGoogle();
-      console.log("User logged in with Google:", user);
-      localStorage.setItem("token", user.accessToken); // Store token in local storage
-      navigate("/home"); // Updated to navigate to home page
-    } catch (error) {
-      setError("שגיאה בהתחברות עם גוגל");
-    }
-  };
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     const user = await loginWithGoogle();
+  //     console.log("User logged in with Google:", user);
+  //     localStorage.setItem("token", user.accessToken); // Store token in local storage
+  //     navigate("/home"); // Updated to navigate to home page
+  //   } catch (error) {
+  //     setError("שגיאה בהתחברות עם גוגל");
+  //   }
+  // };
 
-  // Handles user registration
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setError(null);
-    try {
-      if (!email.current.value || !password.current.value || !username.current.value) {
-        throw new Error("שדות חסרים");
-      }
-      const user = await registerUser(
-        email.current.value,
-        password.current.value,
-        username.current.value
-      );
-      console.log("User registered:", user);
-      navigate("/home");
-    } catch (error) {
-      setError(error.message || "רישום נכשל");
-    }
-  };
+  // // Handles user registration
+  // const handleRegister = async (e) => {
+  //   e.preventDefault();
+  //   setError(null);
+  //   try {
+  //     if (!email.current.value || !password.current.value || !username.current.value) {
+  //       throw new Error("שדות חסרים");
+  //     }
+  //     const user = await registerUser(
+  //       email.current.value,
+  //       password.current.value,
+  //       username.current.value
+  //     );
+  //     console.log("User registered:", user);
+  //     navigate("/home");
+  //   } catch (error) {
+  //     setError(error.message || "רישום נכשל");
+  //   }
+  // };
 
   return (
     <>

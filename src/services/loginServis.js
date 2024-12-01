@@ -74,4 +74,29 @@ export const loginWithGoogle = async () => {
   }
 };
 
+export const loginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    const data = await response.json();
+            
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      return data;
+    }
+    throw new Error("Login failed");
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
+}
+
+
 

@@ -8,6 +8,8 @@ import {
   TextField,
   IconButton,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -23,6 +25,8 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
     contacts: [{ name: "", contact_phone: "", contact_email: "" }],
   });
   const [open, setOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const handleAddCustomer = async (newCustomer) => {
     const res = await addNewCustomer(newCustomer);
@@ -38,7 +42,7 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
       email: "",
       phone: "",
       address: "",
-      contacts: [""],
+      contacts: [{ name: "", phone: "", email: "" }],
     });
   };
   const handleChange = (e) => {
@@ -63,16 +67,35 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
   const addContactField = () => {
     setCustomer({
       ...customer,
-      contacts: [...customer.contacts, ""],
+      contacts: [...customer.contacts, { name: "", phone: "", email: "" }],
     });
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async () => {
     try {
-      const newCustomer = await addNewCustomer(values);
-      onSuccess?.(newCustomer);
+      const response = await addNewCustomer(customer);
+      // Format the customer object correctly before passing it to onSuccess
+      const formattedCustomer = {
+        customer_id: response.insertId, // Use the insertId from the response
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address
+      };
+      
+      if (response) {
+        if (setCustomers) {
+          setCustomers(prev => [...prev, formattedCustomer]);
+        }
+        setShowSuccess(true);
+        if (onSuccess) {
+          onSuccess(formattedCustomer);
+        }
+        handleClose();
+      }
     } catch (error) {
-      // ...existing error handling...
+      console.error("Error adding customer:", error);
+      setError("אירעה שגיאה בהוספת הלקוח");
     }
   };
 
@@ -106,7 +129,7 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
       >
         הוסף לקוח חדש
       </Button> */}
-      
+
       <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ backgroundColor: "primary.main", color: "white" }}>
           הוסף לקוח חדש
@@ -158,7 +181,14 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
             sx={{ marginBottom: "12px" }}
           />
           {customer.contacts.map((contact, index) => (
-            <Box key={index} sx={{ display: "flex", flexDirection: "column", marginBottom: "12px" }}>
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: "12px",
+              }}
+            >
               <Box sx={{ marginBottom: "8px" }}>איש קשר {index + 1}</Box>
               <TextField
                 margin="dense"
@@ -202,12 +232,29 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
           </IconButton>
         </DialogContent>
         <DialogActions sx={{ padding: "12px" }}>
-          <Button onClick={handleClose} sx={{ color: "primary.main" }}>ביטול</Button>
-          <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: "primary.main", color: "white" }}>
+          <Button onClick={handleClose} sx={{ color: "primary.main" }}>
+            ביטול
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            sx={{ backgroundColor: "primary.main", color: "white" }}
+          >
             הוסף
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={6000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setShowSuccess(false)} severity="success">
+          הלקוח נוסף בהצלחה!
+        </Alert>
+      </Snackbar>
     </>
   );
-};
+}

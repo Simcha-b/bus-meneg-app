@@ -140,7 +140,7 @@ export default function CustomerContactSelector({
             size="small" // Make the field smaller
             disablePortal
             options={customerOptions}
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) => option?.name || ''}  // Add null check
             loading={isLoadingCustomers}
             value={selectedCustomer}
             onChange={(event, newValue) => {

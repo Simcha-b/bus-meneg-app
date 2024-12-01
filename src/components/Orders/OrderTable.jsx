@@ -1,6 +1,7 @@
 import { Table, ConfigProvider, Tag, Input, Spin } from "antd";
 import heIL from "antd/lib/locale/he_IL";
 import ExportToExcel from '../common/ExportToExcel';
+import ExportToPDF from '../common/ExportToPDF';
 import {
   formatDate,
   getOrders,
@@ -279,13 +280,19 @@ function OrderTable({ viewType, selectedDate }) {
           style={{ maxWidth: 300 }}
         />
         
-        <ExportToExcel
-          data={getFilteredData()}
-          columns={exportColumns}
-          fileName={`הזמנות_`}
-          disabled={getFilteredData().length === 0}
-          tableFilters={tableFilters}
-        />
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <ExportToPDF
+            data={getFilteredData()}
+            disabled={getFilteredData().length === 0}
+          />
+          <ExportToExcel
+            data={getFilteredData()}
+            columns={exportColumns}
+            fileName={`הזמנות_`}
+            disabled={getFilteredData().length === 0}
+            tableFilters={tableFilters}
+          />
+        </div>
       </div>
 
       <ConfigProvider direction="rtl" locale={heIL}>

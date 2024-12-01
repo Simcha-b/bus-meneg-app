@@ -29,4 +29,3 @@ export const addNewCustomer = async (newCustomer) => {
   const data = await response.json();
   return data;
 };
-//function to delete customer from data base

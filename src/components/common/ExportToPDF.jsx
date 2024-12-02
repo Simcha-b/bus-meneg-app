@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
 });
 
 const PDFDocument = ({ data, columns, title = 'נתוני טבלה' }) => {
+
   if (!data?.length || !columns?.length) {
     return (
       <Document>

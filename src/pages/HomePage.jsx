@@ -1,5 +1,6 @@
 import React from "react";
-import { Typography, Button, Box, Container, Grid, Paper } from "@mui/material";
+import { Typography, Button, Box, Container, Paper } from "@mui/material";
+import { Grid } from "@mui/material/Grid2";
 import { useNavigate } from "react-router-dom";
 import { TrafficReports } from "../components/home-page/TrafficReports";
 import Wether from "../components/home-page/Wether";

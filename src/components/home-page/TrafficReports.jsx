@@ -72,7 +72,7 @@ export function TrafficReports() {
       <style>
         {`
           .traffic-content {
-            animation: moveUp 50s linear infinite;
+            animation: moveUp 100s linear infinite;
           }
 
           .traffic-container:hover .traffic-content {

@@ -1,104 +1,154 @@
+import React from "react";
 import { Button } from "antd";
 import { FilePdfOutlined } from "@ant-design/icons";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-// import "../../fonts/Alef-Bold-normal";
-// import "../../fonts/Alef-Regular-normal";
-import { formatDate } from "../../services/ordersService";
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  PDFDownloadLink,
+  Font,
+} from "@react-pdf/renderer";
+import AlefRegular from "../../fonts/Alef-Regular.ttf";
 
-const ExportToPDF = ({ data, disabled }) => {
-  const exportToPDF = () => {
-    const doc = new jsPDF("l", "mm", "a4");
+Font.register({ family: "Alef", src: AlefRegular });
 
-    // doc.addFileToVFS("Alef-Bold-normal.ttf", "Alef-Bold-normal");
-    // doc.addFont("Alef-Bold-normal.ttf", "Alef-Bold-normal", "normal");
-    // doc.setFont("Alef-Bold-normal");    
-    // doc.setR2L(true);
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: "row",
+    backgroundColor: "#E4E4E4",
+    direction: "rtl", // Add RTL support
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1,
+    direction: "rtl",
+  },
+  title: {
+    fontFamily: "Alef",
+    fontSize: 24,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  text: {
+    fontFamily: "Alef",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  table: {
+    display: "flex",
+    width: "100%",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+  },
+  tableRow: {
+    margin: "auto",
+    flexDirection: "row",
+  },
+  tableCol: {
+    width: "10%", // עדכון רוחב העמודות כדי שיתאימו לתצוגת landscape
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+  },
+  tableCell: {
+    margin: 5,
+    fontSize: 12,
+    fontFamily: "Alef",
+  },
+  tableHeader: {
+    backgroundColor: "#f0f0f0",
+  },
+});
 
+const PDFDocument = ({ data, columns, title = 'נתוני טבלה' }) => {
+  if (!data?.length || !columns?.length) {
+    return (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.section}>
+            <Text style={styles.title}>אין נתונים להציג</Text>
+          </View>
+        </Page>
+      </Document>
+    );
+  }
 
-    const tableColumn = [
-      "תאריך",
-      "שם לקוח",
-      "איש קשר",
-      "שעת התחלה",
-      "שעת סיום",
-      "כמות",
-      "חברה מבצעת",
-      "סטטוס",
-      "מחיר",
-      "שולם",
-    ];
-
-    const tableRows = data.map((item) => [
-      formatDate(item.order_date),
-      item.customer_name,
-      item.contact_name,
-      item.start_time?.slice(0, 5) || "",
-      item.end_time?.slice(0, 5) || "",
-      item.bus_quantity,
-      item.company_name || "לא שובץ",
-      updateTags(item).join(", "),
-      item.price_per_bus_customer || "",
-      item.total_paid_customer || "",
-    ]);
-
-    doc.autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      theme: "grid",
-      styles: {
-        font: "helvetica",
-        halign: "right",
-        fontSize: 8,
-      },
-      headStyles: {
-        fillColor: [41, 128, 185],
-        fontSize: 9,
-        halign: "right",
-      },
-      columnStyles: {
-        0: { cellWidth: 20 },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 25 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 20 },
-        5: { cellWidth: 15 },
-        6: { cellWidth: 25 },
-        7: { cellWidth: 30 },
-        8: { cellWidth: 20 },
-        9: { cellWidth: 20 },
-      },
-      margin: { top: 10 },
-    });
-
-    // Add header
-    doc.setFontSize(16);
-    doc.text("דוח הזמנות", doc.internal.pageSize.width - 20, 20, {
-      align: "right",
-    });
-
-    doc.save("הזמנות.pdf");
-  };
-
-  const updateTags = (order) => {
-    let tags = [];
-    if (!order.company_id) tags.push("חסר שיבוץ");
-    if (!order.price_per_bus_customer) tags.push("נתוני תשלום חסרים");
-    if (!order.paid) tags.push("לא שולם");
-    if (order.total_paid_customer > 0) tags.push("שולם חלקית");
-    return tags;
-  };
+  // נהפוך את סדר העמודות
+  const reversedColumns = [...columns].reverse();
 
   return (
-    <Button
-      icon={<FilePdfOutlined />}
-      onClick={exportToPDF}
-      disabled={disabled}
-      type="primary"
-      style={{ marginRight: "8px" }}
+    <Document>
+      <Page size="A4" orientation="landscape" style={styles.page}>
+        <View style={styles.section}>
+          <Text style={styles.title}>{title}</Text>
+          <View style={styles.table}>
+            {/* Table Headers */}
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              {reversedColumns.map((column, index) => (
+                <View style={styles.tableCol} key={index}>
+                  <Text style={styles.tableCell}>{column.title}</Text>
+                </View>
+              ))}
+            </View>
+            {/* Table Data */}
+            {data.map((row, i) => (
+              <View style={styles.tableRow} key={i}>
+                {reversedColumns.map((column, index) => {
+                  const value = column.render 
+                    ? column.render(row[column.dataIndex], row)
+                    : row[column.dataIndex];
+                  
+                  return (
+                    <View style={styles.tableCol} key={index}>
+                      <Text style={styles.tableCell}>
+                        {value != null ? String(value) : '—'}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+};
+
+const ExportToPDF = ({ data, columns, disabled, title }) => {
+  const [isError, setIsError] = React.useState(false);
+
+  if (isError) {
+    return <Button danger disabled>שגיאה בייצוא PDF</Button>;
+  }
+
+  return (
+    <PDFDownloadLink
+      document={<PDFDocument data={data} columns={columns} title={title} />}
+      fileName="table-data.pdf"
+      onError={(error) => {
+        console.error('PDF Export Error:', error);
+        setIsError(true);
+      }}
     >
-      ייצא ל-PDF
-    </Button>
+      {({ blob, url, loading, error }) => (
+        <Button
+          icon={<FilePdfOutlined />}
+          disabled={disabled || loading || !data?.length}
+          type="primary"
+          style={{ marginRight: "8px" }}
+        >
+          {loading ? 'מכין PDF...' : 'ייצא ל-PDF'}
+        </Button>
+      )}
+    </PDFDownloadLink>
   );
 };
 

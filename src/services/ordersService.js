@@ -1,13 +1,26 @@
 const API_URL = process.env.REACT_APP_API_URL;
+const token = localStorage.getItem("token");
 
 export const getOrders = async () => {
-  const response = await fetch(`${API_URL}/api/orders`);  
+  const response = await fetch(`${API_URL}/api/orders`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });  
   const data = await response.json();
   return data;
 };
 //get orders future
 export const getFutureOrders = async () => {
-  const response = await fetch(`${API_URL}/api/orders/future`);
+  const response = await fetch(`${API_URL}/api/orders/future`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const data = await response.json();
   return data;
 };
@@ -15,7 +28,13 @@ export const getFutureOrders = async () => {
 export const getOrdersByDate = async (year, month) => {
   try {
     const url = `${API_URL}/api/orders/byDate?year=${year}&month=${month}`;
-    const response = await fetch(url);
+    const response = await fetch(url,  {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       throw new Error(
@@ -34,7 +53,13 @@ export const getOrdersByDate = async (year, month) => {
 //get order by id
 export const getOrderById = async (orderId) => {
   try {
-    const response = await fetch(`${API_URL}/api/orders/${orderId}`);
+    const response = await fetch(`${API_URL}/api/orders/${orderId}`,  {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data = await response.json();
     return data;
   } catch (error) {
@@ -45,14 +70,26 @@ export const getOrderById = async (orderId) => {
 
 //get orders by Customer Id
 export const getOrdersByCustomerId = async (id) => {
-  const response = await fetch(`${API_URL}/api/orders/customer/${id}`);
+  const response = await fetch(`${API_URL}/api/orders/customer/${id}`,  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const data = await response.json();
   return data;
 };
 
 //get orders by Company Id
 export const getOrdersByCompanyId = async (id) => {
-  const response = await fetch(`${API_URL}/api/orders/company/${id}`);
+  const response = await fetch(`${API_URL}/api/orders/company/${id}`,  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
   const data = await response.json();
   return data;
 };
@@ -64,6 +101,7 @@ export const sendNewOrder = async (body) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(body),
   });
@@ -76,11 +114,12 @@ export const updateOrder = async (id, body) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(body),
   });
   console.log(body);
-  
+
   const data = await response.json();
   console.log(data);
   return data;
@@ -91,6 +130,7 @@ export async function updateOrderStatus(id, status) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ status }),
   });
@@ -102,6 +142,10 @@ export async function updateOrderStatus(id, status) {
 export const deleteOrder = async (id) => {
   const response = await fetch(`${API_URL}/api/orders/${id}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   });
   const data = await response.json();
   console.log(data);

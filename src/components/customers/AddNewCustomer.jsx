@@ -27,13 +27,7 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
   const [open, setOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState("");
-
-  const handleAddCustomer = async (newCustomer) => {
-    const res = await addNewCustomer(newCustomer);
-    if (res) {
-      setCustomers([...customers, newCustomer]);
-    }
-  };
+  const [showError, setShowError] = useState(false);
 
   const handleClose = () => {
     setOpen(false);
@@ -96,6 +90,7 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
     } catch (error) {
       console.error("Error adding customer:", error);
       setError("אירעה שגיאה בהוספת הלקוח");
+      setShowError(true);
     }
   };
 
@@ -253,6 +248,17 @@ export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
       >
         <Alert onClose={() => setShowSuccess(false)} severity="success">
           הלקוח נוסף בהצלחה!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={showError}
+        autoHideDuration={3000}
+        onClose={() => setShowError(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setShowError(false)} severity="error">
+          {error}
         </Alert>
       </Snackbar>
     </>

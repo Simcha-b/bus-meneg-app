@@ -224,7 +224,7 @@ function Heder() {
             <Typography sx={{ mr: 2 }}>{userName}</Typography>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userName} src={userPhoto} />
+                <Avatar alt={userName} src={userName} />
               </IconButton>
             </Tooltip>
             <Menu

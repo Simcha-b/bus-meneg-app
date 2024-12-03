@@ -1,15 +1,23 @@
-import { Button } from "antd";
+import { Button, Modal, Checkbox, Input } from "antd";
 import { FileExcelOutlined } from '@ant-design/icons';
+import SendMail from "../../services/SendMail";
 import * as XLSX from "xlsx";
+import { useState } from "react";
 
 function ExportToExcel({
   data,
   columns,
   fileName = "exported_data",
-  buttonText = "ייצא לאקסל",
+  buttonText = "ייצא - אקסל",
   disabled = false,
   tableFilters = {}, // מקבל את הפילטרים הפעילים של הטבלה
 }) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [download, setDownload] = useState(true);
+  const [sendEmail, setSendEmail] = useState(false);
+  const [email, setEmail] = useState("");
+  let wb;
+
   const exportToExcel = () => {
     // סינון הנתונים לפי הפילטרים הפעילים
     const filteredData = data.filter((record) => {
@@ -32,7 +40,7 @@ function ExportToExcel({
     });
 
     const ws = XLSX.utils.json_to_sheet(excelData);
-    const wb = XLSX.utils.book_new();
+    wb = XLSX.utils.book_new();
 
     // הגדרת תצוגת RTL לגיליון
     wb.Workbook = {
@@ -41,26 +49,78 @@ function ExportToExcel({
 
     XLSX.utils.book_append_sheet(wb, ws, "נתונים");
 
-    XLSX.writeFile(
-      wb,
-      `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`
-    );
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const excelBlob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    return excelBlob;
+  };
+
+  const handleExportClick = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = async () => {
+    const excelBlob = exportToExcel();
+    if (download) {
+      XLSX.writeFile(
+        wb,
+        `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`
+      );
+    }
+    if (sendEmail) {
+      await SendMail(excelBlob, `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`, {
+        email: email || "b5860344@gmail.com",
+        subject: "נתונים מהמערכת",
+        body: "נתונים מהמערכת מצורפים בקובץ מצורף.",
+      });
+    }
+    setIsModalVisible(false);
   };
 
   return (
-    <Button
-      type="primary"
-      variant="contained"
-      onClick={exportToExcel}
-      disabled={disabled}
-      icon={<FileExcelOutlined />}
-      style={{ 
-        backgroundColor: '#28a745',
-        borderColor: '#28a745',
-      }}
-    >
-      {buttonText}
-    </Button>
+    <>
+      <Button
+        type="primary"
+        variant="contained"
+        onClick={handleExportClick}
+        disabled={disabled}
+        icon={<FileExcelOutlined />}
+        style={{ 
+          backgroundColor: '#28a745',
+          borderColor: '#28a745',
+        }}
+      >
+        {buttonText}
+      </Button>
+      <Modal
+        title="בחר פעולה"
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={() => setIsModalVisible(false)}
+        okText="בצע"
+        cancelText="בטל"
+      >
+        <Checkbox
+          checked={download}
+          onChange={(e) => setDownload(e.target.checked)}
+        >
+          הורדת הקובץ
+        </Checkbox>
+        <Checkbox
+          checked={sendEmail}
+          onChange={(e) => setSendEmail(e.target.checked)}
+        >
+          שליחה במייל
+        </Checkbox>
+        {sendEmail && (
+          <Input
+            placeholder="הכנס כתובת מייל נוספת (אופציונלי)"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ marginTop: 16 }}
+          />
+        )}
+      </Modal>
+    </>
   );
 }
 

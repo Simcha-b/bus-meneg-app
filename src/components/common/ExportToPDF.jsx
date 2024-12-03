@@ -146,7 +146,7 @@ const ExportToPDF = ({ data, columns, disabled, title }) => {
           type="primary"
           style={{ marginRight: "8px" }}
         >
-          {loading ? 'מכין PDF...' : 'ייצא ל-PDF'}
+          {loading ? 'מכין PDF...' : 'ייצא -PDF'}
         </Button>
       )}
     </PDFDownloadLink>

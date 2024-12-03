@@ -14,7 +14,7 @@ const Reports = () => {
     // setLoading(true);
     // try {
     //   // שולח את הנתונים לשרת (פילטרים)
-    //   const response = await axios.get('https://your-api.com/reports', {
+    //   const response = await axios.get('', {
     //     params: values, // שולח את כל הפילטרים
     //   });
     //   console.log('נתונים שהתקבלו:', response.data);

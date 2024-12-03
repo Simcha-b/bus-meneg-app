@@ -1,128 +1,96 @@
 import React from "react";
-import { Typography, Button, Box, Container, Paper } from "@mui/material";
-import { Grid } from "@mui/material/Grid2";
+import { Typography, Box, Container, Paper, IconButton } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { useNavigate } from "react-router-dom";
 import { TrafficReports } from "../components/home-page/TrafficReports";
 import Wether from "../components/home-page/Wether";
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
+import GroupIcon from '@mui/icons-material/Group';
+import BusinessIcon from '@mui/icons-material/Business';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 
 function HomePage() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  const actionItems = [
+    { title: 'נסיעות', icon: <DirectionsBusIcon />, path: '/orders', color: 'primary.main' },
+    { title: 'לקוחות', icon: <GroupIcon />, path: '/customers', color: 'secondary.main' },
+    { title: 'ספקים', icon: <BusinessIcon />, path: '/operators', color: 'success.main' },
+    { title: 'הזמנה חדשה', icon: <AddCircleIcon />, path: '/orders/new', color: 'warning.main' },
+    { title: 'דוחות', icon: <AssessmentIcon />, path: '/reports', color: 'info.main' },
+  ];
 
   return (
     <Container maxWidth="xl" dir="rtl">
-      <Box sx={{ py: 2 }}>
-        <Grid container spacing={2}>
-          {/* Notifications Section - Full Width */}
+      <Box sx={{ py: 3 }}>
+        <Grid container spacing={3} >
+          {/* Quick Actions - Top Section */}
           <Grid item xs={12}>
-            <Paper elevation={4} sx={{ p: 2, mb: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                התראות מערכת
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "row", gap: 2 , font:"menu", color:"red"}}>
-                <a href="#">יש 2 נסיעות השבוע שעדיין לא שובץ להם נהג</a>
-                <a href="#">יש 3 לקוחות שיש להם חוב פתוח</a>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+              <Typography variant="h6" sx={{ mb: 3, textAlign: 'center' }}>פעולות מהירות</Typography>
+              <Box sx={{ 
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 4,
+                justifyContent: 'center',
+                maxWidth: 800,
+                margin: '0 auto'
+              }}>
+                {actionItems.map((item) => (
+                  <Box key={item.path} sx={{ textAlign: 'center' }}>
+                    <IconButton
+                      onClick={() => navigate(item.path)}
+                      sx={{
+                        width: 90,
+                        height: 90,
+                        backgroundColor: item.color,
+                        '&:hover': {
+                          backgroundColor: item.color,
+                          opacity: 0.9,
+                          transform: 'translateY(-3px)',
+                        },
+                        transition: 'all 0.2s ease-in-out',
+                      }}
+                    >
+                      {React.cloneElement(item.icon, { sx: { fontSize: 40, color: 'white' } })}
+                    </IconButton>
+                    <Typography sx={{ mt: 1, fontWeight: 500 }}>{item.title}</Typography>
+                  </Box>
+                ))}
               </Box>
             </Paper>
           </Grid>
 
-          {/* Main Actions Section */}
+          {/* Notifications Panel */}
           <Grid item xs={12}>
-            <Paper elevation={4} sx={{ p: 2, mb: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                פעולות מהירות
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 1,
-                  justifyContent: "center",
-                }}
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => navigate("/orders")}
-                  sx={{
-                    width: 200,
-                    height: 80,
-                    fontSize: 24,
-                    fontWeight: "bold",
-                  }}
-                >
-                  נסיעות
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => navigate("/customers")}
-                  sx={{
-                    width: 200,
-                    height: 80,
-                    fontSize: 24,
-                    fontWeight: "bold",
-                  }}
-                >
-                  לקוחות
-                </Button>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={() => navigate("/operators")}
-                  sx={{
-                    width: 200,
-                    height: 80,
-                    fontSize: 24,
-                    fontWeight: "bold",
-                  }}
-                >
-                  ספקים
-                </Button>
-                <Button
-                  variant="contained"
-                  color="warning"
-                  onClick={() => navigate("/orders/new")}
-                  sx={{
-                    width: 200,
-                    height: 80,
-                    fontSize: 24,
-                    fontWeight: "bold",
-                  }}
-                >
-                  הזמנה חדשה
-                </Button>
-                <Button
-                  variant="contained"
-                  color="info"
-                  onClick={() => navigate("/reports")}
-                  sx={{
-                    width: 200,
-                    height: 80,
-                    fontSize: 24,
-                    fontWeight: "bold",
-                  }}
-                >
-                  דוחות
-                </Button>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <NotificationsActiveIcon color="error" />
+                <Typography variant="h6">התראות מערכת</Typography>
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2, color: "error.main" }}>
+                <Typography variant="body1" component="a" href="#" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                  • יש 2 נסיעות השבוע שעדיין לא שובץ להם נהג
+                </Typography>
+                <Typography variant="body1" component="a" href="#" sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                  • יש 3 לקוחות שיש להם חוב פתוח
+                </Typography>
               </Box>
             </Paper>
           </Grid>
 
-          {/* Updates Section - Split into two columns */}
+          {/* Updates Section - Two Columns */}
           <Grid item xs={12} md={6}>
-            <Paper elevation={4} sx={{ p: 2, height: "100%" }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                עדכוני מזג אויר
-              </Typography>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>עדכוני מזג אויר</Typography>
               <Wether />
             </Paper>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Paper elevation={4} sx={{ p: 2, height: "100%" }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                עדכוני תנועה
-              </Typography>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>עדכוני תנועה</Typography>
               <TrafficReports />
             </Paper>
           </Grid>

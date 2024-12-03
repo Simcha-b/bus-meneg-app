@@ -10,6 +10,11 @@ import {
   Input,
   List,
   Space,
+  Card,
+  Row,
+  Col,
+  Tabs,
+  Avatar
 } from "antd";
 import heIL from "antd/lib/locale/he_IL";
 import AddNewCustomer from "./AddNewCustomer";
@@ -18,7 +23,7 @@ import OrderDetails from "./OrderDetails";
 import { Box } from "@mui/system";
 import EditOrder from "../order-actions/EditOrder";
 import DeleteOrder from "../order-actions/DeleteOrder";
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, EditOutlined, PhoneOutlined, MailOutlined } from '@ant-design/icons';
 
 const CustomersTable = () => {
   const [customers, setCustomers] = useState([]);
@@ -32,6 +37,7 @@ const CustomersTable = () => {
   const [contacts, setContacts] = useState([]);
   const [newContact, setNewContact] = useState({ name: "", phone: "" });
   const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState('');
 
   //function to fetch customers from the server
   const fetchCustomers = async () => {
@@ -41,18 +47,9 @@ const CustomersTable = () => {
         customers.map(async (customer) => {
           const orders = await getOrdersByCustomerId(customer.customer_id);
           
-          if (orders.length === 0) {
-            return {
-              ...customer,
-              payment_status: null,
-              totalDebt: 0
-            };
-          }
-
           let totalDebt = 0;
           const hasUnpaidOrders = orders.some((order) => {
             if (!order.paid) {
-              // מכפיל את המחיר לאוטובוס במספר האוטובוסים
               totalDebt += order.price_per_bus_customer * order.bus_quantity;
               return true;
             }
@@ -61,7 +58,7 @@ const CustomersTable = () => {
 
           return {
             ...customer,
-            payment_status: hasUnpaidOrders ? "חוב פתוח" : "שולם",
+            payment_status: hasUnpaidOrders && totalDebt > 0 ? "חוב פתוח" : null,
             totalDebt: totalDebt
           };
         })
@@ -144,7 +141,7 @@ const CustomersTable = () => {
       title: "שם",
       dataIndex: "name",
       key: "name",
-      width: "20%",
+      width: "10%",
       sorter: (a, b) => a.name.localeCompare(b.name),
       filterSearch: true,
       filters: [...new Set(customers.map(customer => customer.name))]
@@ -176,7 +173,6 @@ const CustomersTable = () => {
       key: "action",
       render: (_, record) => (
         <Button
-          type="primary"
           onClick={() => handleShowOrders(record)}
           key={`action-${record.key}`}
         >
@@ -227,9 +223,11 @@ const CustomersTable = () => {
       title: "ערוך פרטים",
       key: "edit",
       render: (_, record) => (
-        <Button onClick={() => handleEditCustomer(record)}>
-          ערוך פרטי לקוח
-        </Button>
+        <Button 
+          icon={<EditOutlined />}
+          onClick={() => handleEditCustomer(record)}
+          title="ערוך פרטי לקוח"
+        />
       ),
     },
   ];
@@ -321,21 +319,75 @@ const CustomersTable = () => {
     },
   ];
 
+  const groupedCustomers = {
+    all: customers,
+    debt: customers.filter(c => c.payment_status === "חוב פתוח"),
+  };
+
+  const filteredCustomers = customers
+    .filter(customer => 
+      customer.name.includes(searchText) || 
+      customer.phone.includes(searchText) || 
+      customer.email.includes(searchText)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name)); // מיון לפי שם
+
   return (
     <ConfigProvider direction="rtl" locale={heIL}>
       <Box>
-        <Box mb={2}>
+        <Box mb={2} display="flex" gap={2} flexWrap="wrap">
           <AddNewCustomer customers={customers} setCustomers={setCustomers} />
+          <Input.Search
+            placeholder="חיפוש לקוח..."
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ maxWidth: 300 }}
+          />
         </Box>
-        <Table
-          dataSource={customers.map((customer, index) => ({
-            ...customer,
-            key: index,
-          }))}
-          expandable={{}}
-          columns={columns}
-          bordered={true}
-        />
+        <Tabs defaultActiveKey="all">
+          {Object.entries({
+            all: { tab: "כל הלקוחות", data: filteredCustomers },
+            debt: { tab: "בחוב", data: groupedCustomers.debt.filter(c => 
+              c.name.includes(searchText) || 
+              c.phone.includes(searchText) || 
+              c.email.includes(searchText)
+            )}
+          }).map(([key, { tab, data }]) => (
+            <Tabs.TabPane tab={tab} key={key}>
+              <Row gutter={[16, 16]}>
+                {data.map((customer, index) => (
+                  <Col xs={24} sm={12} md={8} lg={6} xl={4} key={customer.customer_id}>
+                    <Card
+                      hoverable
+                      style={{ height: '100%' }}
+                      actions={[
+                        <EditOutlined key="edit" onClick={() => handleEditCustomer(customer)} />,
+                        <EyeOutlined key="orders" onClick={() => handleShowOrders(customer)} />
+                      ]}
+                    >
+                      <Card.Meta
+                        avatar={<Avatar style={{ backgroundColor: customer.payment_status === "חוב פתוח" ? '#ff4d4f' : '#52c41a' }}>
+                          {customer.name[0]}
+                        </Avatar>}
+                        title={<span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>{customer.name}</span>}
+                        description={
+                          <Space direction="vertical" size="small" style={{ width: '100%', marginTop: 8 }}>
+                            <span><PhoneOutlined /> {customer.phone}</span>
+                            <span><MailOutlined /> {customer.email}</span>
+                            {customer.payment_status === "חוב פתוח" && (
+                              <Tag color="red" style={{ marginTop: 8 }}>
+                                {`חוב: ${customer.totalDebt} ₪`}
+                              </Tag>
+                            )}
+                          </Space>
+                        }
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Tabs.TabPane>
+          ))}
+        </Tabs>
         <Modal
           title={`פירוט נסיעות - ${selectedCustomerName}`}
           open={open}

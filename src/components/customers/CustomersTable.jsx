@@ -131,7 +131,7 @@ const CustomersTable = () => {
 
   // פונקציה לרענון ההזמנות של לקוח ספציפי
   const refreshOrders = async (customerId) => {
-    const updatedOrders = await getOrdersByCustomerId(customerId);
+    // const updatedOrders = await getOrdersByCustomerId(customerId);
     // setOrders(updatedOrders);
   };
 

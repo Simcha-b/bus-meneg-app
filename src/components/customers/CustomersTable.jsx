@@ -136,101 +136,101 @@ const CustomersTable = () => {
   };
 
   //columns for the main table
-  const columns = [
-    {
-      title: "שם",
-      dataIndex: "name",
-      key: "name",
-      width: "10%",
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      filterSearch: true,
-      filters: [...new Set(customers.map(customer => customer.name))]
-        .map(name => ({ text: name, value: name })),
-      onFilter: (value, record) => record.name === value,
-    },
-    {
-      title: "אימייל",
-      dataIndex: "email",
-      key: "email",
-      width: "15%",
-      filterSearch: true,
-      filters: [...new Set(customers.map(customer => customer.email))]
-        .map(email => ({ text: email, value: email })),
-      onFilter: (value, record) => record.email === value,
-    },
-    {
-      title: "טלפון",
-      dataIndex: "phone",
-      key: "phone",
-      width: "10%",
-      filterSearch: true,
-      filters: [...new Set(customers.map(customer => customer.phone))]
-        .map(phone => ({ text: phone, value: phone })),
-      onFilter: (value, record) => record.phone === value,
-    },
-    {
-      title: "פעולות",
-      key: "action",
-      render: (_, record) => (
-        <Button
-          onClick={() => handleShowOrders(record)}
-          key={`action-${record.key}`}
-        >
-          הצג פירוט נסיעות
-        </Button>
-      ),
-      width: "15%",
-    },
-    {
-      title: "סטטוס",
-      dataIndex: "status",
-      key: "status",
-      render: (_, record) => {
-        if (!record.payment_status) return null;
-        return (
-          <Tag color={record.payment_status === "חוב פתוח" ? "red" : "green"}>
-            {record.payment_status}
-          </Tag>
-        );
-      },
-      filters: [
-        { text: "חוב פתוח", value: "חוב פתוח" },
-        { text: "שולם", value: "שולם" },
-        { text: "אין נסיעות", value: null }
-      ],
-      onFilter: (value, record) => record.payment_status === value,
-    },
-    {
-      title: "מצב תשלומים",
-      dataIndex: "payment_status",
-      key: "payment_status",
-      render: (_, record) => {
-        if (!record.payment_status) return "אין נסיעות";
-        if (record.payment_status === "חוב פתוח") {
-          return record.totalDebt === 0 ? (
-            "נתוני תשלום חסרים"
-          ) : (
-            <span style={{ color: 'red' }}>
-              {`-${record.totalDebt} ₪`}
-            </span>
-          );
-        }
-        return "שולם";
-      },
-      sorter: (a, b) => (a.totalDebt || 0) - (b.totalDebt || 0),
-    },
-    {
-      title: "ערוך פרטים",
-      key: "edit",
-      render: (_, record) => (
-        <Button 
-          icon={<EditOutlined />}
-          onClick={() => handleEditCustomer(record)}
-          title="ערוך פרטי לקוח"
-        />
-      ),
-    },
-  ];
+  // const columns = [
+  //   {
+  //     title: "שם",
+  //     dataIndex: "name",
+  //     key: "name",
+  //     width: "10%",
+  //     sorter: (a, b) => a.name.localeCompare(b.name),
+  //     filterSearch: true,
+  //     filters: [...new Set(customers.map(customer => customer.name))]
+  //       .map(name => ({ text: name, value: name })),
+  //     onFilter: (value, record) => record.name === value,
+  //   },
+  //   {
+  //     title: "אימייל",
+  //     dataIndex: "email",
+  //     key: "email",
+  //     width: "15%",
+  //     filterSearch: true,
+  //     filters: [...new Set(customers.map(customer => customer.email))]
+  //       .map(email => ({ text: email, value: email })),
+  //     onFilter: (value, record) => record.email === value,
+  //   },
+  //   {
+  //     title: "טלפון",
+  //     dataIndex: "phone",
+  //     key: "phone",
+  //     width: "10%",
+  //     filterSearch: true,
+  //     filters: [...new Set(customers.map(customer => customer.phone))]
+  //       .map(phone => ({ text: phone, value: phone })),
+  //     onFilter: (value, record) => record.phone === value,
+  //   },
+  //   {
+  //     title: "פעולות",
+  //     key: "action",
+  //     render: (_, record) => (
+  //       <Button
+  //         onClick={() => handleShowOrders(record)}
+  //         key={`action-${record.key}`}
+  //       >
+  //         הצג פירוט נסיעות
+  //       </Button>
+  //     ),
+  //     width: "15%",
+  //   },
+  //   {
+  //     title: "סטטוס",
+  //     dataIndex: "status",
+  //     key: "status",
+  //     render: (_, record) => {
+  //       if (!record.payment_status) return null;
+  //       return (
+  //         <Tag color={record.payment_status === "חוב פתוח" ? "red" : "green"}>
+  //           {record.payment_status}
+  //         </Tag>
+  //       );
+  //     },
+  //     filters: [
+  //       { text: "חוב פתוח", value: "חוב פתוח" },
+  //       { text: "שולם", value: "שולם" },
+  //       { text: "אין נסיעות", value: null }
+  //     ],
+  //     onFilter: (value, record) => record.payment_status === value,
+  //   },
+  //   {
+  //     title: "מצב תשלומים",
+  //     dataIndex: "payment_status",
+  //     key: "payment_status",
+  //     render: (_, record) => {
+  //       if (!record.payment_status) return "אין נסיעות";
+  //       if (record.payment_status === "חוב פתוח") {
+  //         return record.totalDebt === 0 ? (
+  //           "נתוני תשלום חסרים"
+  //         ) : (
+  //           <span style={{ color: 'red' }}>
+  //             {`-${record.totalDebt} ₪`}
+  //           </span>
+  //         );
+  //       }
+  //       return "שולם";
+  //     },
+  //     sorter: (a, b) => (a.totalDebt || 0) - (b.totalDebt || 0),
+  //   },
+  //   {
+  //     title: "ערוך פרטים",
+  //     key: "edit",
+  //     render: (_, record) => (
+  //       <Button 
+  //         icon={<EditOutlined />}
+  //         onClick={() => handleEditCustomer(record)}
+  //         title="ערוך פרטי לקוח"
+  //       />
+  //     ),
+  //   },
+  // ];
   //columns for the orders table
   const ordersColumns = [
     {
@@ -371,8 +371,14 @@ const CustomersTable = () => {
                         title={<span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>{customer.name}</span>}
                         description={
                           <Space direction="vertical" size="small" style={{ width: '100%', marginTop: 8 }}>
-                            <span><PhoneOutlined /> {customer.phone}</span>
-                            <span><MailOutlined /> {customer.email}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <PhoneOutlined />
+                              <span style={{ flex: 1 }}>{customer.phone}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <MailOutlined />
+                              <span style={{ flex: 1 }}>{customer.email}</span>
+                            </div>
                             {customer.payment_status === "חוב פתוח" && (
                               <Tag color="red" style={{ marginTop: 8 }}>
                                 {`חוב: ${customer.totalDebt} ₪`}

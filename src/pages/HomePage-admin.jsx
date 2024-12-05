@@ -11,7 +11,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 
-function HomePage() {
+function HomePageAdmin() {
   const navigate = useNavigate();
 
   const actionItems = [
@@ -107,4 +107,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default HomePageAdmin;

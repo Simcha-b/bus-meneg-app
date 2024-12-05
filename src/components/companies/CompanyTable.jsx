@@ -9,7 +9,6 @@ import {
   Form,
   Input,
   List,
-  Space,
 } from "antd";
 import heIL from "antd/lib/locale/he_IL";
 import { Box } from "@mui/system";
@@ -19,7 +18,6 @@ const CompanyTable = () => {
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [contacts, setContacts] = useState([]);
-  const [newContact, setNewContact] = useState({ name: "", phone: "" });
   const [isTripsModalOpen, setIsTripsModalOpen] = useState(false);
   const [tripDetails, setTripDetails] = useState([]);
   const [form] = Form.useForm();
@@ -41,14 +39,12 @@ const CompanyTable = () => {
       email: company.contact_email,
       phone: company.contact_phone,
     });
-    setContacts(company.contacts || []);
     setIsCompanyModalOpen(true);
   };
 
   const handleAddNewCompany = () => {
     setSelectedCompany(null);
     form.resetFields();
-    setContacts([]);
     setIsCompanyModalOpen(true);
   };
 
@@ -71,14 +67,6 @@ const CompanyTable = () => {
     setSelectedCompany(null);
   };
 
-  const handleAddContact = () => {
-    setContacts([...contacts, newContact]);
-    setNewContact({ name: "", phone: "" });
-  };
-
-  const handleRemoveContact = (index) => {
-    setContacts(contacts.filter((_, i) => i !== index));
-  };
 
   const handleShowTrips = async (company) => {
     try {
@@ -184,39 +172,6 @@ const CompanyTable = () => {
               rules={[{ required: true, message: "נא להזין טלפון" }]}
             >
               <Input />
-            </Form.Item>
-            <Form.Item label="אנשי קשר">
-              <List
-                dataSource={contacts}
-                renderItem={(contact, index) => (
-                  <List.Item
-                    actions={[
-                      <Button onClick={() => handleRemoveContact(index)}>
-                        מחק
-                      </Button>,
-                    ]}
-                  >
-                    {contact.name} - {contact.phone}
-                  </List.Item>
-                )}
-              />
-              <Space>
-                <Input
-                  placeholder="שם"
-                  value={newContact.name}
-                  onChange={(e) =>
-                    setNewContact({ ...newContact, name: e.target.value })
-                  }
-                />
-                <Input
-                  placeholder="טלפון"
-                  value={newContact.phone}
-                  onChange={(e) =>
-                    setNewContact({ ...newContact, phone: e.target.value })
-                  }
-                />
-                <Button onClick={handleAddContact}>הוסף איש קשר</Button>
-              </Space>
             </Form.Item>
           </Form>
         </Modal>

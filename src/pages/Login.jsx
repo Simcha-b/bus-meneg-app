@@ -5,7 +5,7 @@ import { checkLogin, loginUser, loginWithGoogle, registerUser } from "../service
 import "../css/login.css";
 
 function Login() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const [error, setError] = useState(null);
   const email = useRef();
   const password = useRef();

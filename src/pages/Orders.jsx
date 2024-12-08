@@ -59,7 +59,7 @@ function Orders() {
         <DatePicker
           picker={viewType === "month" ? "month" : viewType === "week" ? "week" : "date"}
           format={viewType === "month" ? "MM/YYYY" : "DD/MM/YYYY"}
-          onChange={(date) => setSelectedDate(date)}
+          onChange={(date) => setSelectedDate(date ? date : dayjs())}
           value={selectedDate}
           style={{ width: 200 }}
         />

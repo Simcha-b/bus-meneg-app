@@ -42,6 +42,7 @@ function OrderTable({ viewType, selectedDate }) {
   };
 
   const getTableTitle = () => {
+    if (!selectedDate) return "הזמנות";
     switch (viewType) {
       case "day":
         return `הזמנות ליום ${selectedDate.format("DD/MM/YYYY")}`;

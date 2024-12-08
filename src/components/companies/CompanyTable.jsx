@@ -17,7 +17,6 @@ const CompanyTable = () => {
   const [companies, setCompanies] = useState([]);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [contacts, setContacts] = useState([]);
   const [isTripsModalOpen, setIsTripsModalOpen] = useState(false);
   const [tripDetails, setTripDetails] = useState([]);
   const [form] = Form.useForm();

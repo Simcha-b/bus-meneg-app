@@ -78,8 +78,7 @@ function Login() {
           fontFamily: "'Roboto', sans-serif", // Apply Roboto font
         }}
       >
-        בדרך הישר
-      </h1>
+בדרך הישר - מערכת ניהול      </h1>
       <Container
         component="main"
         maxWidth="xs"

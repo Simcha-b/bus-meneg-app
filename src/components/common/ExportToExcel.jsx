@@ -1,4 +1,4 @@
-import { Button, Modal, Checkbox, Input } from "antd";
+import { Button, Modal, Checkbox, Input, message } from "antd";
 import { FileExcelOutlined } from '@ant-design/icons';
 import SendMail from "../../services/SendMail";
 import * as XLSX from "xlsx";
@@ -11,6 +11,7 @@ function ExportToExcel({
   buttonText = "ייצא - אקסל",
   disabled = false,
   tableFilters = {}, // מקבל את הפילטרים הפעילים של הטבלה
+
 }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [download, setDownload] = useState(true);
@@ -60,20 +61,40 @@ function ExportToExcel({
 
   const handleOk = async () => {
     const excelBlob = exportToExcel();
-    if (download) {
-      XLSX.writeFile(
-        wb,
-        `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`
-      );
+    
+    try {
+      if (download) {
+        XLSX.writeFile(wb, `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`);
+      }
+      
+      if (sendEmail) {
+        const result = await SendMail(
+          excelBlob,
+          `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`,
+          {
+            email: email || "b5860344@gmail.com",
+            subject: `${fileName} - דוח מערכת דרך הישר`,
+            body: `שלום,
+            
+מצורף ${fileName} שהופק ממערכת דרך הישר.
+
+בברכה,
+צוות דרך הישר`,
+          }
+        );
+
+        if (result.success) {
+          message.success("הקובץ נשלח בהצלחה למייל");
+        } else {
+          message.error("שגיאה בשליחת המייל");
+        }
+      }
+
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error(error);
+      message.error("אירעה שגיאה בייצוא הקובץ");
     }
-    if (sendEmail) {
-      await SendMail(excelBlob, `${fileName}_${new Date().toLocaleDateString("he-IL")}.xlsx`, {
-        email: email || "b5860344@gmail.com",
-        subject: "נתונים מהמערכת",
-        body: "נתונים מהמערכת מצורפים בקובץ מצורף.",
-      });
-    }
-    setIsModalVisible(false);
   };
 
   return (
@@ -123,5 +144,4 @@ function ExportToExcel({
     </>
   );
 }
-
 export default ExportToExcel;

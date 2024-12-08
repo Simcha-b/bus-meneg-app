@@ -12,3 +12,20 @@ export async function getCompanies() {
   const data = await response.json();
   return data;
 }
+
+export const addCompany = async (companyData) => {
+  const response = await fetch(`${API_URL}/api/companies`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(companyData),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to add company');
+  }
+  
+  return response.json();
+};

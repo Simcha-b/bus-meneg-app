@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-
+const API_URL = process.env.REACT_APP_API_URL;
 export function TrafficReports() {
   const [trafficReports, setTrafficReports] = useState([]);
   const containerRef = useRef(null);
@@ -7,7 +7,7 @@ export function TrafficReports() {
   const fetchReports = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/orders/traffic-reports",
+        `${API_URL}/api/orders/traffic-reports`,
         {
           method: "GET",
           headers: {

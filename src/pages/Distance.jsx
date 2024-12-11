@@ -1,4 +1,4 @@
-import { Button, Input, Modal, Box, Stack, Alert } from "@mui/material";
+import { Button, Input, Box, Stack, Alert } from "@mui/material";
 import React, { useState } from "react";
 const API_URL = process.env.REACT_APP_API_URL;
 const token = localStorage.getItem("token");
@@ -59,7 +59,6 @@ function Distance() {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || "שגיאה בתקשורת עם השרת");
       }

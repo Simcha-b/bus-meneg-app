@@ -16,6 +16,7 @@ import {
   Tabs,
   Avatar,
   Tooltip,
+  Spin,
 } from "antd";
 import heIL from "antd/lib/locale/he_IL";
 import AddNewCustomer from "./AddNewCustomer";
@@ -45,10 +46,12 @@ const CustomersTable = () => {
   const [newContact, setNewContact] = useState({ name: "", phone: "" });
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(true);
 
   //function to fetch customers from the server
   const fetchCustomers = async () => {
     try {
+      setLoading(true);
       const customers = await getCustomers();
       const customersWithStatus = await Promise.all(
         customers.map(async (customer) => {
@@ -74,6 +77,8 @@ const CustomersTable = () => {
       setCustomers(customersWithStatus);
     } catch (error) {
       console.error("Failed to fetch customers:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -302,229 +307,231 @@ const CustomersTable = () => {
 
   return (
     <ConfigProvider direction="rtl" locale={heIL}>
-      <Box>
-        <Box mb={2} display="flex" gap={2} flexWrap="wrap">
-          <AddNewCustomer customers={customers} setCustomers={setCustomers} />
-          <Input.Search
-            placeholder="חיפוש לקוח..."
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ maxWidth: 300 }}
-          />
-        </Box>
-        <Tabs defaultActiveKey="all">
-          {Object.entries({
-            all: { tab: "כל הלקוחות", data: filteredCustomers },
-            debt: {
-              tab: "בחוב",
-              data: groupedCustomers.debt.filter(
-                (c) =>
-                  c.name.includes(searchText) ||
-                  c.phone.includes(searchText) ||
-                  c.email.includes(searchText)
-              ),
-            },
-          }).map(([key, { tab, data }]) => (
-            <Tabs.TabPane tab={tab} key={key}>
-              <Row gutter={[16, 16]}>
-                {data.map((customer, index) => (
-                  <Col
-                    xs={24}
-                    sm={12}
-                    md={8}
-                    lg={6}
-                    xl={4}
-                    key={customer.customer_id}
-                  >
-                    <Card
-                      hoverable
-                      style={{ height: "100%" }}
+      <Spin spinning={loading} tip="טוען נתונים...">
+        <Box>
+          <Box mb={2} display="flex" gap={2} flexWrap="wrap">
+            <AddNewCustomer customers={customers} setCustomers={setCustomers} />
+            <Input.Search
+              placeholder="חיפוש לקוח..."
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ maxWidth: 300 }}
+            />
+          </Box>
+          <Tabs defaultActiveKey="all">
+            {Object.entries({
+              all: { tab: "כל הלקוחות", data: filteredCustomers },
+              debt: {
+                tab: "בחוב",
+                data: groupedCustomers.debt.filter(
+                  (c) =>
+                    c.name.includes(searchText) ||
+                    c.phone.includes(searchText) ||
+                    c.email.includes(searchText)
+                ),
+              },
+            }).map(([key, { tab, data }]) => (
+              <Tabs.TabPane tab={tab} key={key}>
+                <Row gutter={[16, 16]}>
+                  {data.map((customer, index) => (
+                    <Col
+                      xs={24}
+                      sm={12}
+                      md={8}
+                      lg={6}
+                      xl={4}
+                      key={customer.customer_id}
+                    >
+                      <Card
+                        hoverable
+                        style={{ height: "100%" }}
+                        actions={[
+                          <Tooltip title=" ערוך פרטי לקוח">
+                            <EditOutlined
+                              key="edit"
+                              onClick={() => handleEditCustomer(customer)}
+                            />
+                          </Tooltip>,
+                          <Tooltip title="הצג פירוט נסיעות">
+                            <EyeOutlined
+                              key="orders"
+                              onClick={() => handleShowOrders(customer)}
+                            />
+                          </Tooltip>,
+                        ]}
+                      >
+                        <Card.Meta
+                          avatar={
+                            <Avatar
+                              style={{
+                                backgroundColor:
+                                  customer.payment_status === "חוב פתוח"
+                                    ? "#ff4d4f"
+                                    : "#52c41a",
+                              }}
+                            >
+                              {customer.name[0]}
+                            </Avatar>
+                          }
+                          title={
+                            <span
+                              style={{ fontSize: "1.1em", fontWeight: "bold" }}
+                            >
+                              {customer.name}
+                            </span>
+                          }
+                          description={
+                            <Space
+                              direction="vertical"
+                              size="small"
+                              style={{ width: "100%", marginTop: 8 }}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                }}
+                              >
+                                <PhoneOutlined />
+                                <span style={{ flex: 1 }}>{customer.phone}</span>
+                              </div>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                }}
+                              >
+                                <MailOutlined />
+                                <span style={{ flex: 1 }}>{customer.email}</span>
+                              </div>
+                              {customer.payment_status === "חוב פתוח" && (
+                                <Tag color="red" style={{ marginTop: 8 }}>
+                                  {`חוב: ${customer.totalDebt} ₪`}
+                                </Tag>
+                              )}
+                            </Space>
+                          }
+                        />
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
+          <Modal
+            title={`פירוט נסיעות - ${selectedCustomerName}`}
+            open={open}
+            onCancel={handleClose}
+            footer={[
+              <ExportToExcel
+                key="export"
+                fileName={`נסיעות_${selectedCustomerName}`}
+                data={prepareOrdersForExport()}
+                columns={ordersExportColumns}
+                buttonText="ייצא לאקסל"
+              />,
+              <Button key="close" onClick={handleClose}>
+                סגור
+              </Button>,
+            ]}
+            width="90%"
+          >
+            <Table
+              dataSource={orders}
+              columns={ordersColumns}
+              pagination={false}
+              scroll={{ x: true }}
+            />
+          </Modal>
+          <Modal
+            title="פרטי נסיעה"
+            open={showOrderDetails}
+            onCancel={handleOrderDetailsClose}
+            footer={[
+              <Button key="close" onClick={handleOrderDetailsClose}>
+                סגור
+              </Button>,
+            ]}
+            width="80%"
+          >
+            {selectedOrder && <OrderDetails order={selectedOrder} />}
+          </Modal>
+          <Modal
+            title="ערוך פרטי לקוח"
+            open={isCustomerModalOpen}
+            onCancel={handleCustomerModalClose}
+            onOk={handleSaveCustomer}
+          >
+            <Form form={form} layout="vertical">
+              <Form.Item
+                name="name"
+                label="שם"
+                rules={[{ required: true, message: "נא להזין שם" }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                label="אימייל"
+                rules={[{ required: true, message: "נא להזין אימייל" }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="phone"
+                label="טלפון"
+                rules={[{ required: true, message: "נא להזין טלפון" }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item label="אנשי קשר">
+                <List
+                  dataSource={contacts}
+                  renderItem={(contact, index) => (
+                    <List.Item
                       actions={[
-                        <Tooltip title=" ערוך פרטי לקוח">
-                          <EditOutlined
-                            key="edit"
-                            onClick={() => handleEditCustomer(customer)}
-                          />
-                        </Tooltip>,
-                        <Tooltip title="הצג פירוט נסיעות">
-                          <EyeOutlined
-                            key="orders"
-                            onClick={() => handleShowOrders(customer)}
-                          />
-                        </Tooltip>,
+                        <Button onClick={() => handleRemoveContact(index)}>
+                          מחק
+                        </Button>,
                       ]}
                     >
-                      <Card.Meta
-                        avatar={
-                          <Avatar
-                            style={{
-                              backgroundColor:
-                                customer.payment_status === "חוב פתוח"
-                                  ? "#ff4d4f"
-                                  : "#52c41a",
-                            }}
-                          >
-                            {customer.name[0]}
-                          </Avatar>
-                        }
-                        title={
-                          <span
-                            style={{ fontSize: "1.1em", fontWeight: "bold" }}
-                          >
-                            {customer.name}
-                          </span>
-                        }
-                        description={
-                          <Space
-                            direction="vertical"
-                            size="small"
-                            style={{ width: "100%", marginTop: 8 }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                            >
-                              <PhoneOutlined />
-                              <span style={{ flex: 1 }}>{customer.phone}</span>
-                            </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                            >
-                              <MailOutlined />
-                              <span style={{ flex: 1 }}>{customer.email}</span>
-                            </div>
-                            {customer.payment_status === "חוב פתוח" && (
-                              <Tag color="red" style={{ marginTop: 8 }}>
-                                {`חוב: ${customer.totalDebt} ₪`}
-                              </Tag>
-                            )}
-                          </Space>
-                        }
-                      />
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
-            </Tabs.TabPane>
-          ))}
-        </Tabs>
-        <Modal
-          title={`פירוט נסיעות - ${selectedCustomerName}`}
-          open={open}
-          onCancel={handleClose}
-          footer={[
+                      {contact.name} - {contact.phone}
+                    </List.Item>
+                  )}
+                />
+                <Space>
+                  <Input
+                    placeholder="שם"
+                    value={newContact.name}
+                    onChange={(e) =>
+                      setNewContact({ ...newContact, name: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="טלפון"
+                    value={newContact.phone}
+                    onChange={(e) =>
+                      setNewContact({ ...newContact, phone: e.target.value })
+                    }
+                  />
+                  <Button onClick={handleAddContact}>הוסף איש קשר</Button>
+                </Space>
+              </Form.Item>
+            </Form>
+          </Modal>
+          <Box mt={2}>
             <ExportToExcel
-              key="export"
-              fileName={`נסיעות_${selectedCustomerName}`}
-              data={prepareOrdersForExport()}
-              columns={ordersExportColumns}
-              buttonText="ייצא לאקסל"
-            />,
-            <Button key="close" onClick={handleClose}>
-              סגור
-            </Button>,
-          ]}
-          width="90%"
-        >
-          <Table
-            dataSource={orders}
-            columns={ordersColumns}
-            pagination={false}
-            scroll={{ x: true }}
-          />
-        </Modal>
-        <Modal
-          title="פרטי נסיעה"
-          open={showOrderDetails}
-          onCancel={handleOrderDetailsClose}
-          footer={[
-            <Button key="close" onClick={handleOrderDetailsClose}>
-              סגור
-            </Button>,
-          ]}
-          width="80%"
-        >
-          {selectedOrder && <OrderDetails order={selectedOrder} />}
-        </Modal>
-        <Modal
-          title="ערוך פרטי לקוח"
-          open={isCustomerModalOpen}
-          onCancel={handleCustomerModalClose}
-          onOk={handleSaveCustomer}
-        >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              name="name"
-              label="שם"
-              rules={[{ required: true, message: "נא להזין שם" }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              label="אימייל"
-              rules={[{ required: true, message: "נא להזין אימייל" }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="phone"
-              label="טלפון"
-              rules={[{ required: true, message: "נא להזין טלפון" }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item label="אנשי קשר">
-              <List
-                dataSource={contacts}
-                renderItem={(contact, index) => (
-                  <List.Item
-                    actions={[
-                      <Button onClick={() => handleRemoveContact(index)}>
-                        מחק
-                      </Button>,
-                    ]}
-                  >
-                    {contact.name} - {contact.phone}
-                  </List.Item>
-                )}
-              />
-              <Space>
-                <Input
-                  placeholder="שם"
-                  value={newContact.name}
-                  onChange={(e) =>
-                    setNewContact({ ...newContact, name: e.target.value })
-                  }
-                />
-                <Input
-                  placeholder="טלפון"
-                  value={newContact.phone}
-                  onChange={(e) =>
-                    setNewContact({ ...newContact, phone: e.target.value })
-                  }
-                />
-                <Button onClick={handleAddContact}>הוסף איש קשר</Button>
-              </Space>
-            </Form.Item>
-          </Form>
-        </Modal>
-        <Box mt={2}>
-          <ExportToExcel
-            fileName="דוח_חובות"
-            data={prepareDebtsForExport()}
-            columns={debtsExportColumns}
-            buttonText="ייצא דוח חובות"
-            disabled={!groupedCustomers.debt.length}
-          />
+              fileName="דוח_חובות"
+              data={prepareDebtsForExport()}
+              columns={debtsExportColumns}
+              buttonText="ייצא דוח חובות"
+              disabled={!groupedCustomers.debt.length}
+            />
+          </Box>
         </Box>
-      </Box>
+      </Spin>
     </ConfigProvider>
   );
 };

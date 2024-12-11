@@ -27,18 +27,7 @@ const LandingPage = () => {
               אנו מספקים שירותי הסעות מתקדמים ומותאמים אישית. הצטרפו אלינו ותיהנו מניהול קל ונוח!
             </Paragraph>
           </Col>
-          <Col span={24} style={{ textAlign: 'center' }}>
-            <img
-              src="/bus-image.jpg"
-              alt="אוטובוס"
-              style={{
-                maxWidth: '100%',
-                height: 'auto',
-                borderRadius: '8px',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-              }}
-            />
-          </Col>
+         
           <Col span={24} style={{ textAlign: 'center' }}>
             <Button
               type="primary"

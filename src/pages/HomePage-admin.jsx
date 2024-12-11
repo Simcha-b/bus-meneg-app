@@ -27,7 +27,7 @@ function HomePageAdmin() {
       <Box sx={{ py: 4, backgroundColor: "background.default" }}>
         <Grid container spacing={4} justifyContent="center">
           {/* Notifications */}
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={4} sx={{ p: 4, borderRadius: 4 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <NotificationsActiveIcon color="error" sx={{ fontSize: 28, mr: 1 }} />
@@ -53,7 +53,7 @@ function HomePageAdmin() {
           </Grid>
 
           {/* Quick Actions */}
-          <Grid item xs={12}>
+          <Grid xs={12}>
             <Paper elevation={4} sx={{ p: 4, borderRadius: 4 }}>
               <Typography variant="h5" sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>פעולות מהירות</Typography>
               <Box sx={{
@@ -89,13 +89,13 @@ function HomePageAdmin() {
           </Grid>
 
           {/* Updates */}
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={4} sx={{ p: 4, borderRadius: 4 }}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>עדכוני מזג אויר</Typography>
               <Wether />
             </Paper>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid xs={12} md={6}>
             <Paper elevation={4} sx={{ p: 4, borderRadius: 4, minHeight: 200 }}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>עדכוני תנועה</Typography>
               <TrafficReports />

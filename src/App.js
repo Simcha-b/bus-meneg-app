@@ -29,6 +29,7 @@ import Companies from "./pages/Companies";
 import NotFoundPage from "./pages/NotFoundPage";
 import Reports from "./pages/Reports";
 import LandingPage  from "./pages/LandingPage";
+import Dashboard from "./pages/Dashboard";
 const queryClient = new QueryClient();
 
   const theme = createTheme(
@@ -100,6 +101,7 @@ function App() {
                   <Route path="bus-company" element={<Companies />} />
                   <Route path="customers" element={<Customers />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="dashboard" element={<Dashboard  />} />
                   {/* <Route path="distance" element={<Distance />} /> */}
                 </Route>
               </Route>

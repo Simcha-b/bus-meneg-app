@@ -258,9 +258,12 @@ function OrderTable({ viewType, selectedDate }) {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
+          flexDirection: "column",
+          gap: "16px"
         }}
       >
         <Spin size="large" />
+        <span style={{ fontFamily: "Rubik, sans-serif" }}>טוען נתונים...</span>
       </div>
     );
   }
@@ -328,6 +331,11 @@ function OrderTable({ viewType, selectedDate }) {
 
       <ConfigProvider direction="rtl" locale={heIL}>
         <Table
+          loading={{
+            spinning: isLoading,
+            tip: "טוען נתונים...",
+            size: "large"
+          }}
           columns={columns}
           dataSource={getFilteredData().map((item) => ({
             ...item,

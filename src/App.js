@@ -19,7 +19,7 @@ import createCache from "@emotion/cache";
 import { prefixer } from "stylis";
 import rtlPlugin from "stylis-plugin-rtl";
 
-import HomePage from "./pages/HomePage";
+import HomePageAdmin from "./pages/HomePage-admin";
 import NewOrder from "./pages/NewOrder";
 import Login from "./pages/Login";
 import ProtectedPages from "./pages/ProtectedPages";
@@ -28,6 +28,8 @@ import Customers from "./pages/Customers";
 import Companies from "./pages/Companies";
 import NotFoundPage from "./pages/NotFoundPage";
 import Reports from "./pages/Reports";
+import LandingPage  from "./pages/LandingPage";
+import Dashboard from "./pages/Dashboard";
 const queryClient = new QueryClient();
 
   const theme = createTheme(
@@ -88,17 +90,18 @@ function App() {
         <Router>
           <QueryClientProvider client={queryClient}>
             <Routes>
-              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedPages />}>
                 <Route element={<Layout />}>
-                  <Route path="/home" element={<HomePage />}></Route>
+                  <Route path="/home" element={<HomePageAdmin />}></Route>
                   <Route path="/orders" element={<Orders />}></Route>
                   <Route path="orders/new" element={<NewOrder />} />
                   <Route path="orders/:orderId" element={<NewOrder />} />
                   <Route path="bus-company" element={<Companies />} />
                   <Route path="customers" element={<Customers />} />
                   <Route path="reports" element={<Reports />} />
+                  <Route path="dashboard" element={<Dashboard  />} />
                   {/* <Route path="distance" element={<Distance />} /> */}
                 </Route>
               </Route>

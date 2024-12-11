@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
+import { insertContact } from "../../services/contactService";
 
-export default function AddNewContact({ onSave }) {
+export default function AddNewContact({ customer_id, onSuccess }) {
   const [contactData, setContactData] = useState({
     name: "",
-    email: "",
-    phone: "",
+    contact_phone: "",
+    contact_email: "",
   });
 
   const handleChange = (e) => {
@@ -16,9 +17,14 @@ export default function AddNewContact({ onSave }) {
     }));
   };
 
-  const handleSave = () => {
-    // Call the onSave function passed as a prop with the new contact data
-    onSave(contactData);
+  const handleSubmit = async (values) => {
+    try {
+      const newContact = await insertContact({ ...values, customer_id });
+      onSuccess?.(newContact);
+      // remove any reset/clear form logic if it exists
+    } catch (error) {
+      // ...existing error handling...
+    }
   };
 
   return (
@@ -39,22 +45,20 @@ export default function AddNewContact({ onSave }) {
         size="small"
         label="אימייל"
         name="email"
-        value={contactData.email}
+        value={contactData.contact_email}
         onChange={handleChange}
-        required
       />
       <TextField
         size="small"
         label="טלפון"
         name="phone"
-        value={contactData.phone}
+        value={contactData.contact_phone}
         onChange={handleChange}
-        required
       />
       <Button 
         variant="contained" 
         color="primary" 
-        onClick={handleSave}
+        onClick={handleSubmit}
         size="small"
         sx={{ alignSelf: 'flex-start', mt: 1 }}
       >

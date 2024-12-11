@@ -7,30 +7,27 @@ import {
   Button,
   TextField,
   IconButton,
-  Input,
   Box,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 import { addNewCustomer } from "../../services/customersService";
 
-const AddNewCustomer = ({ customers, setCustomers }) => {
+export default function AddNewCustomer({ customers, setCustomers, onSuccess }) {
   const [customer, setCustomer] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
-    contacts: [{ name: "", phone: "", email: "" }],
+    contacts: [{ name: "", contact_phone: "", contact_email: "" }],
   });
   const [open, setOpen] = useState(false);
-
-  const handleAddCustomer = async (newCustomer) => {
-    const res = await addNewCustomer(newCustomer);
-    if (res) {
-      setCustomers([...customers, newCustomer]);
-    }
-  };
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
 
   const handleClose = () => {
     setOpen(false);
@@ -39,7 +36,7 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
       email: "",
       phone: "",
       address: "",
-      contacts: [""],
+      contacts: [{ name: "", phone: "", email: "" }],
     });
   };
   const handleChange = (e) => {
@@ -64,14 +61,37 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
   const addContactField = () => {
     setCustomer({
       ...customer,
-      contacts: [...customer.contacts, ""],
+      contacts: [...customer.contacts, { name: "", phone: "", email: "" }],
     });
   };
 
-  const handleSubmit = () => {
-    // Send customer data to the database
-    handleAddCustomer(customer);
-    handleClose();
+  const handleSubmit = async () => {
+    try {
+      const response = await addNewCustomer(customer);
+      // Format the customer object correctly before passing it to onSuccess
+      const formattedCustomer = {
+        customer_id: response.insertId, // Use the insertId from the response
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address
+      };
+      
+      if (response) {
+        if (setCustomers) {
+          setCustomers(prev => [...prev, formattedCustomer]);
+        }
+        setShowSuccess(true);
+        if (onSuccess) {
+          onSuccess(formattedCustomer);
+        }
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Error adding customer:", error);
+      setError("אירעה שגיאה בהוספת הלקוח");
+      setShowError(true);
+    }
   };
 
   return (
@@ -104,7 +124,7 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
       >
         הוסף לקוח חדש
       </Button> */}
-      
+
       <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ backgroundColor: "primary.main", color: "white" }}>
           הוסף לקוח חדש
@@ -156,7 +176,14 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
             sx={{ marginBottom: "12px" }}
           />
           {customer.contacts.map((contact, index) => (
-            <Box key={index} sx={{ display: "flex", flexDirection: "column", marginBottom: "12px" }}>
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: "12px",
+              }}
+            >
               <Box sx={{ marginBottom: "8px" }}>איש קשר {index + 1}</Box>
               <TextField
                 margin="dense"
@@ -200,14 +227,40 @@ const AddNewCustomer = ({ customers, setCustomers }) => {
           </IconButton>
         </DialogContent>
         <DialogActions sx={{ padding: "12px" }}>
-          <Button onClick={handleClose} sx={{ color: "primary.main" }}>ביטול</Button>
-          <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: "primary.main", color: "white" }}>
+          <Button onClick={handleClose} sx={{ color: "primary.main" }}>
+            ביטול
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            sx={{ backgroundColor: "primary.main", color: "white" }}
+          >
             הוסף
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={6000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setShowSuccess(false)} severity="success">
+          הלקוח נוסף בהצלחה!
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={showError}
+        autoHideDuration={3000}
+        onClose={() => setShowError(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setShowError(false)} severity="error">
+          {error}
+        </Alert>
+      </Snackbar>
     </>
   );
-};
-
-export default AddNewCustomer;
+}

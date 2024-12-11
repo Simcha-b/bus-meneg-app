@@ -24,6 +24,24 @@ export default function CustomerContactSelector({
   const [selectedContact, setSelectedContact] = useState(null);
   const [contactValue, setContactValue] = useState("old");
 
+  const handleNewCustomerSuccess = (newCustomer) => {
+    setValue("old");
+    setSelectedCustomer(newCustomer);
+    setFormData(prev => ({
+      ...prev,
+      customer_id: newCustomer.customer_id
+    }));
+  };
+
+  const handleNewContactSuccess = (newContact) => {
+    setContactValue("old");
+    setSelectedContact(newContact);
+    setFormData(prev => ({
+      ...prev,
+      contact_id: newContact.id
+    }));
+  };
+
   // שליפת לקוחות
   const { data: customers, isLoading: isLoadingCustomers } = useQuery({
     queryKey: ["customers"],
@@ -114,7 +132,7 @@ export default function CustomerContactSelector({
 
       {value === "new" ? (
         <Box sx={{ maxWidth: '600px' }}>
-          <AddNewCustomer />
+          <AddNewCustomer onSuccess={handleNewCustomerSuccess} />
         </Box>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -122,7 +140,7 @@ export default function CustomerContactSelector({
             size="small" // Make the field smaller
             disablePortal
             options={customerOptions}
-            getOptionLabel={(option) => option.name}
+            getOptionLabel={(option) => option?.name || ''}  // Add null check
             loading={isLoadingCustomers}
             value={selectedCustomer}
             onChange={(event, newValue) => {
@@ -182,7 +200,10 @@ export default function CustomerContactSelector({
                 />
               ) : (
                 <Box sx={{ maxWidth: '600px' }}>
-                  <AddNewContact />
+                  <AddNewContact 
+                    customer_id={formData.customer_id} 
+                    onSuccess={handleNewContactSuccess}
+                  />
                 </Box>
               )}
             </Box>

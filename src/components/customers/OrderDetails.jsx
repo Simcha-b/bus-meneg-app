@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Descriptions, Space } from "antd";
+import { Card, Descriptions } from "antd";
 import EditOrder from "../order-actions/EditOrder";
 
 const OrderDetails = ({ order, fetchOrders }) => {

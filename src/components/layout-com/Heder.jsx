@@ -23,11 +23,12 @@ const pages = [
   { name: "ספקים", path: "/bus-company" },
   { name: "הזמנה חדשה", path: "/orders/new" },
   { name: "דוחות", path: "/reports" },
+  { name: "סטטיסטיקות", path: "/dashboard" },
 ];
 const settings = [
   { name: "פרופיל", action: "profile" },
   { name: "הגדרות חשבון", action: "settings" },
-  { name: "התנתקות", action: "logout" }
+  { name: "התנתקות", action: "logout" },
 ];
 
 function Heder() {
@@ -40,10 +41,10 @@ function Heder() {
   const [userPhoto, setUserPhoto] = React.useState("");
 
   React.useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      setUserName(user.name || user.email.split('@')[0]);
-      setUserPhoto(user.photoURL || ""); // Set user photo URL if available
+      setUserName(user.name || user.email.split("@")[0]);
+      setUserPhoto(user.photoURL || user);
     }
   }, []);
 
@@ -75,43 +76,22 @@ function Heder() {
     navigate("/home");
   };
 
-  const handleLogout = async () => {
-    try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      
-      if (user) {
-        // Handle sign out for both Firebase and Google auth
-        await signOut(auth);
-        
-        // If user was signed in with Google, you might want to handle additional cleanup
-        if (user.providerData.some(provider => provider.providerId === 'google.com')) {
-          // Optional: Add any Google-specific cleanup here if needed
-          console.log('Google user signed out successfully');
-        }
-      }
-      
-      // Clear all localStorage
-      localStorage.clear();
-      // Navigate to login page
-      navigate('/login');
-    } catch (error) {
-      console.error("Error signing out: ", error);
-      // You might want to show an error message to the user here
-    }
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
   };
 
   const handleSettingsAction = (action) => {
     handleCloseUserMenu();
     switch (action) {
-      case 'logout':
+      case "logout":
         handleLogout();
         break;
-      case 'profile':
-        navigate('/profile');
+      case "profile":
+        navigate("/profile");
         break;
-      case 'settings':
-        navigate('/settings');
+      case "settings":
+        navigate("/settings");
         break;
       default:
         break;
@@ -119,7 +99,9 @@ function Heder() {
   };
 
   return (
-    <AppBar position="sticky" sx={{ bgcolor: "primary.dark" }}> {/* Change AppBar color */}
+    <AppBar position="sticky" sx={{ bgcolor: "primary.dark" }}>
+      {" "}
+      {/* Change AppBar color */}
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <DirectionsBusIcon
@@ -183,8 +165,11 @@ function Heder() {
                 </MenuItem>
               ))}
               <MenuItem onClick={() => setOpen(true)}>
-                <Typography sx={{ textAlign: "center" }}>חישוב מרחקים</Typography>
-                </MenuItem>
+                <Typography sx={{ textAlign: "center" }}>
+                  חישוב מרחקים
+                </Typography>
+              </MenuItem>
+              
             </Menu>
           </Box>
           <DirectionsBusIcon
@@ -215,28 +200,33 @@ function Heder() {
               <Button
                 key={page.name}
                 onClick={() => handleNavigation(page.path)}
-                sx={{ 
-                  my: 2, 
-                  color: location.pathname === page.path ? "secondary.main" : "white", // Adjust highlight color
-                  display: "block" 
+                sx={{
+                  my: 2,
+                  color:
+                    location.pathname === page.path
+                      ? "secondary.main"
+                      : "white", // Adjust highlight color
+                  display: "block",
                 }}
               >
                 {page.name}
               </Button>
             ))}
             <Button
-              color={location.pathname === "/distance" ? "secondary.main" : "inherit"} // Adjust highlight color
+              color={
+                location.pathname === "/distance" ? "secondary.main" : "inherit"
+              } // Adjust highlight color
               onClick={() => setOpen(true)}
               sx={{ my: 2 }}
             >
               חישוב מרחקים
             </Button>
           </Box>
-          <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
             <Typography sx={{ mr: 2 }}>{userName}</Typography>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userName} src={userPhoto} /> {/* Set avatar src */}
+                <Avatar alt={userName} src={userName} />
               </IconButton>
             </Tooltip>
             <Menu
@@ -256,8 +246,8 @@ function Heder() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem 
-                  key={setting.name} 
+                <MenuItem
+                  key={setting.name}
                   onClick={() => handleSettingsAction(setting.action)}
                 >
                   <Typography sx={{ textAlign: "center" }}>

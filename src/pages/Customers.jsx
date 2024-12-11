@@ -6,8 +6,8 @@ import { Typography } from '@mui/material'
 function Customers() {
   return (
     <div>
-      <Typography variant="h4" component="h1" align="center">
-         טבלת לקוחות 
+      <Typography variant="h5" component="h3" align="center" >
+        לקוחות 
       </Typography>
       <CustomersTable />
     </div>

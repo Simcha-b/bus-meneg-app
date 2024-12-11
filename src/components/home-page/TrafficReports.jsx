@@ -12,6 +12,7 @@ export function TrafficReports() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
@@ -36,27 +37,33 @@ export function TrafficReports() {
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="traffic-container" 
+      className="traffic-container"
       onMouseLeave={handleMouseLeave}
       style={{
-        height: '150px',
-        overflow: 'auto',
-        position: 'relative',
-        border: '1px solid #ccc',
-        borderRadius: '4px',
+        height: "150px",
+        overflow: "auto",
+        position: "relative",
+        border: "1px solid #ccc",
+        borderRadius: "4px",
       }}
     >
-      <div className="traffic-content" style={{
-        position: 'relative',
-        transform: 'translateY(0)'
-      }}>
+      <div
+        className="traffic-content"
+        style={{
+          position: "relative",
+          transform: "translateY(0)",
+        }}
+      >
         {trafficReports.map((report, index) => (
-          <div key={index} style={{
-            padding: '10px',
-            borderBottom: '1px solid #eee'
-          }}>
+          <div
+            key={index}
+            style={{
+              padding: "10px",
+              borderBottom: "1px solid #eee",
+            }}
+          >
             <h3>{report.roadNumber}</h3>
             <p>{report.description}</p>
           </div>
@@ -65,7 +72,7 @@ export function TrafficReports() {
       <style>
         {`
           .traffic-content {
-            animation: moveUp 50s linear infinite;
+            animation: moveUp 100s linear infinite;
           }
 
           .traffic-container:hover .traffic-content {
@@ -81,4 +88,3 @@ export function TrafficReports() {
     </div>
   );
 }
-

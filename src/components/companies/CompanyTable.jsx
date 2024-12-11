@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getCompanies } from "../../services/companiesService";
+import { getCompanies, addCompany } from "../../services/companiesService";
 import { getOrdersByCompanyId } from "../../services/ordersService";
 import {
   Button,
@@ -7,19 +7,16 @@ import {
   Table,
   Modal,
   Form,
-  Input,
   List,
-  Space,
 } from "antd";
 import heIL from "antd/lib/locale/he_IL";
 import { Box } from "@mui/system";
+import CompanyForm from "./CompanyForm";
 
 const CompanyTable = () => {
   const [companies, setCompanies] = useState([]);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [contacts, setContacts] = useState([]);
-  const [newContact, setNewContact] = useState({ name: "", phone: "" });
   const [isTripsModalOpen, setIsTripsModalOpen] = useState(false);
   const [tripDetails, setTripDetails] = useState([]);
   const [form] = Form.useForm();
@@ -36,34 +33,37 @@ const CompanyTable = () => {
 
   const handleEditCompany = (company) => {
     setSelectedCompany(company);
-    form.setFieldsValue({
-      name: company.company_name,
-      email: company.contact_email,
-      phone: company.contact_phone,
-    });
-    setContacts(company.contacts || []);
     setIsCompanyModalOpen(true);
   };
 
   const handleAddNewCompany = () => {
     setSelectedCompany(null);
     form.resetFields();
-    setContacts([]);
     setIsCompanyModalOpen(true);
   };
 
-  const handleSaveCompany = () => {
-    form.validateFields().then((values) => {
+  const handleSaveCompany = async () => {
+    try {
+      const values = await form.validateFields();
       if (selectedCompany) {
         // Implement update logic here
       } else {
-        // Implement add logic here
-        const newCompany = { ...values, contacts };
-        setCompanies([...companies, newCompany]);
+        const newCompanyData = {
+          company_name: values.name,
+          contact_name: values.contact_name,
+          contact_email: values.contact_email,
+          contact_phone: values.contact_phone,
+        };
+        
+        const savedCompany = await addCompany(newCompanyData);
+        setCompanies([...companies, savedCompany]);
       }
       setIsCompanyModalOpen(false);
       setSelectedCompany(null);
-    });
+      form.resetFields();
+    } catch (error) {
+      console.error("Failed to save company:", error);
+    }
   };
 
   const handleCompanyModalClose = () => {
@@ -71,14 +71,6 @@ const CompanyTable = () => {
     setSelectedCompany(null);
   };
 
-  const handleAddContact = () => {
-    setContacts([...contacts, newContact]);
-    setNewContact({ name: "", phone: "" });
-  };
-
-  const handleRemoveContact = (index) => {
-    setContacts(contacts.filter((_, i) => i !== index));
-  };
 
   const handleShowTrips = async (company) => {
     try {
@@ -163,62 +155,7 @@ const CompanyTable = () => {
           onCancel={handleCompanyModalClose}
           onOk={handleSaveCompany}
         >
-          <Form form={form} layout="vertical">
-            <Form.Item
-              name="name"
-              label="שם"
-              rules={[{ required: true, message: "נא להזין שם" }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              label="אימייל"
-              rules={[{ required: true, message: "נא להזין אימייל" }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              name="phone"
-              label="טלפון"
-              rules={[{ required: true, message: "נא להזין טלפון" }]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item label="אנשי קשר">
-              <List
-                dataSource={contacts}
-                renderItem={(contact, index) => (
-                  <List.Item
-                    actions={[
-                      <Button onClick={() => handleRemoveContact(index)}>
-                        מחק
-                      </Button>,
-                    ]}
-                  >
-                    {contact.name} - {contact.phone}
-                  </List.Item>
-                )}
-              />
-              <Space>
-                <Input
-                  placeholder="שם"
-                  value={newContact.name}
-                  onChange={(e) =>
-                    setNewContact({ ...newContact, name: e.target.value })
-                  }
-                />
-                <Input
-                  placeholder="טלפון"
-                  value={newContact.phone}
-                  onChange={(e) =>
-                    setNewContact({ ...newContact, phone: e.target.value })
-                  }
-                />
-                <Button onClick={handleAddContact}>הוסף איש קשר</Button>
-              </Space>
-            </Form.Item>
-          </Form>
+          <CompanyForm form={form} initialValues={selectedCompany} />
         </Modal>
         <Modal
           title="פירוט נסיעות"

@@ -1,31 +1,37 @@
 import React, { useState } from "react";
 import { Box } from "@mui/system";
-import { ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { DatePicker, ConfigProvider} from "antd";
+import heIL from "antd/lib/locale/he_IL";
 import OrderTable from "../components/Orders/OrderTable";
+import dayjs from 'dayjs';
+import 'dayjs/locale/he'; // הוספת תמיכה בעברית
 
 function Orders() {
-  const [tableType, setTableType] = useState("future");
+  const [viewType, setViewType] = useState("month");
+  const [selectedDate, setSelectedDate] = useState(dayjs()); 
 
-  const handleChange = (event, newValue) => {
+  const handleViewTypeChange = (event, newValue) => {
     if (newValue !== null) {
-      setTableType(newValue);
+      setViewType(newValue);
+      setSelectedDate(dayjs());
     }
   };
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          mb: 4,
-        }}
-      >
+      <Box sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: 3,
+        mb: 4,
+      }}>
         <ToggleButtonGroup
-          value={tableType}
+          value={viewType}
           exclusive
-          onChange={handleChange}
-          aria-label="order type selection"
+          onChange={handleViewTypeChange}
+          aria-label="view type selection"
           sx={{
             backgroundColor: 'background.paper',
             boxShadow: 1,
@@ -45,16 +51,22 @@ function Orders() {
             }
           }}
         >
-          <ToggleButton value="future">
-            הזמנות עתידיות
-          </ToggleButton>
-          <ToggleButton value="past">
-            הזמנות לפי חודש
-          </ToggleButton>
+          <ToggleButton value="month">חודש</ToggleButton>
+          <ToggleButton value="week">שבוע</ToggleButton>
+          <ToggleButton value="day">יום</ToggleButton>
         </ToggleButtonGroup>
+        <ConfigProvider direction="rtl" locale={heIL}>
+        <DatePicker
+          picker={viewType === "month" ? "month" : viewType === "week" ? "week" : "date"}
+          format={viewType === "month" ? "MM/YYYY" : "DD/MM/YYYY"}
+          onChange={(date) => setSelectedDate(date ? date : dayjs())}
+          value={selectedDate}
+          style={{ width: 200 }}
+        />
+        </ConfigProvider >
       </Box>
 
-      <OrderTable tableType={tableType} />
+      <OrderTable viewType={viewType} selectedDate={selectedDate} />
     </Box>
   );
 }

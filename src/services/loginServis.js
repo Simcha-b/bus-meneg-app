@@ -1,5 +1,9 @@
-import { loginWithEmailAndPassword, registerWithEmailAndPassword, signInWithGoogle } from "../firebase/authentication.js";
-import { updateProfile } from "firebase/auth"; 
+import {
+  loginWithEmailAndPassword,
+  registerWithEmailAndPassword,
+  signInWithGoogle,
+} from "../firebase/authentication.js";
+import { updateProfile } from "firebase/auth";
 const API_URL = process.env.REACT_APP_API_URL;
 
 export const getUser = async (email) => {
@@ -13,13 +17,13 @@ export const registerUser = async (email, password, name) => {
     const userCredential = await registerWithEmailAndPassword(email, password);
     const user = userCredential.user;
     await updateProfile(user, { displayName: name });
-    
+
     const token = await user.getIdToken();
     const userInfo = {
       email: user.email,
       name: name,
       uid: user.uid,
-      token: token
+      token: token,
     };
     localStorage.setItem("user", JSON.stringify(userInfo));
     return user;
@@ -37,9 +41,9 @@ export const checkLogin = async (email, password) => {
       const token = await user.getIdToken();
       const userInfo = {
         email: user.email,
-        name: user.displayName || email.split('@')[0],
+        name: user.displayName || email.split("@")[0],
         uid: user.uid,
-        token: token
+        token: token,
       };
       localStorage.setItem("user", JSON.stringify(userInfo));
       return user;
@@ -62,7 +66,7 @@ export const loginWithGoogle = async () => {
         name: user.displayName,
         uid: user.uid,
         token: token,
-        photoURL: user.photoURL
+        photoURL: user.photoURL,
       };
       localStorage.setItem("user", JSON.stringify(userInfo));
       return user;
@@ -74,4 +78,26 @@ export const loginWithGoogle = async () => {
   }
 };
 
+export const loginUser = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/api/users/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
+    const data = await response.json();
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.userInfo));
+      return data;
+    }
+    throw new Error("Login failed");
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
+};

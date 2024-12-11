@@ -1,6 +1,7 @@
 import { Button, Input, Box, Stack, Alert } from "@mui/material";
 import React, { useState } from "react";
 const API_URL = process.env.REACT_APP_API_URL;
+const token = localStorage.getItem("token");
 
 function Distance() {
   const [distance, setDistance] = useState("");
@@ -44,23 +45,20 @@ function Distance() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/orders/calculate-distance`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            locations: validLocations.map(loc => loc.trim()),
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/orders/calculate-distance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          locations: validLocations.map((loc) => loc.trim()),
+        }),
+      });
 
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || "שגיאה בתקשורת עם השרת");
       }
@@ -96,10 +94,16 @@ function Distance() {
         p: 4,
       }}
     >
-      <h2 style={{ textAlign: "center", marginBottom: "20px" ,font:"menu", fontSize:"large"}}>
+      <h2
+        style={{
+          textAlign: "center",
+          marginBottom: "20px",
+          font: "menu",
+          fontSize: "large",
+        }}
+      >
         חישוב מרחק נסיעה
       </h2>
-
       <Stack spacing={3}>
         {locations.map((loc, index) => (
           <Box
@@ -142,7 +146,7 @@ function Distance() {
         </Button>
 
         {error && (
-          <Alert severity="error" sx={{ width: '100%' }}>
+          <Alert severity="error" sx={{ width: "100%" }}>
             {error}
           </Alert>
         )}
@@ -167,7 +171,7 @@ function Distance() {
             sx={{ minWidth: "120px" }}
             disabled={loading} // Disable button when loading
           >
-            {loading ? "טוען..." : "חשב מרחק"} 
+            {loading ? "טוען..." : "חשב מרחק"}
           </Button>
           <Button
             onClick={() => {
@@ -180,7 +184,8 @@ function Distance() {
             איפוס
           </Button>
         </Stack>
-      </Stack>    </Box>
+      </Stack>{" "}
+    </Box>
   );
 }
 

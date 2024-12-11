@@ -1,16 +1,23 @@
 import { Table, ConfigProvider, Tag, Input, Spin } from "antd";
 import heIL from "antd/lib/locale/he_IL";
-import ExportToExcel from '../common/ExportToExcel';
-import {
-  formatDate,
-  getFutureOrders,
-  getOrdersByDate,
-} from "../../services/ordersService";
+import ExportToExcel from "../common/ExportToExcel";
+import ExportToPDF from "../common/ExportToPDF";
+import { formatDate, getOrders } from "../../services/ordersService";
 import { useEffect, useState } from "react";
 import DeleteOrder from "../order-actions/DeleteOrder";
 import EditOrder from "../order-actions/EditOrder";
 import OrderDetails from "../customers/OrderDetails";
-import ChooseYearAndMonth from "./ChooseYearAndMonth";
+import dayjs from "dayjs";
+import "dayjs/locale/he";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+// הוספת הפלאגינים הנדרשים
+dayjs.extend(weekOfYear);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(customParseFormat);
+dayjs.locale("he");
 
 const tagColors = {
   "חסר שיבוץ": "orange",
@@ -19,28 +26,47 @@ const tagColors = {
   "נתוני תשלום חסרים": "purple",
 };
 
-function OrderTable({ tableType }) {
+function OrderTable({ viewType, selectedDate }) {
   const [data, setData] = useState([]);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [tableFilters, setTableFilters] = useState({});
+
+  const filterOrdersByDate = (orders) => {
+    return orders.filter((order) => {
+      const orderDate = dayjs(order.order_date);
+      return orderDate.isSame(selectedDate, viewType);
+    });
+  };
+
+  const getTableTitle = () => {
+    if (!selectedDate) return "הזמנות";
+    switch (viewType) {
+      case "day":
+        return `הזמנות ליום ${selectedDate.format("DD/MM/YYYY")}`;
+      case "week": {
+        const startOfWeek = selectedDate.startOf("week");
+        const endOfWeek = selectedDate.endOf("week");
+        return `הזמנות ${startOfWeek.format("DD/MM")} - ${endOfWeek.format(
+          "DD/MM/YYYY"
+        )}`;
+      }
+      case "month":
+        return `הזמנות לחודש ${selectedDate.format("MM/YYYY")}`;
+      default:
+        return "הזמנות";
+    }
+  };
 
   const fetchOrders = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      if (tableType === "past") {
-        console.log(year, month);
-        const orders = await getOrdersByDate(year, month);
-        setData(orders);
-      } else if (tableType === "future") {
-        const orders = await getFutureOrders();
-        setData(orders);
-      } 
+      const orders = await getOrders();
+      const filteredOrders = filterOrdersByDate(orders);
+      setData(filteredOrders);
     } catch (error) {
       setError(error);
     } finally {
@@ -50,7 +76,7 @@ function OrderTable({ tableType }) {
 
   useEffect(() => {
     fetchOrders();
-  }, [tableType, year, month]);
+  }, [selectedDate, viewType]);
 
   const updateTags = (order) => {
     let tags = [];
@@ -80,7 +106,6 @@ function OrderTable({ tableType }) {
         item.company_name,
         item.order_date,
       ];
-      
       return searchFields.some(
         (field) =>
           field &&
@@ -88,35 +113,34 @@ function OrderTable({ tableType }) {
       );
     });
   };
-
   const exportColumns = [
-    { title: 'תאריך', dataIndex: 'order_date', render: formatDate },
-    { title: 'שם לקוח', dataIndex: 'customer_name' },
-    { title: 'איש קשר', dataIndex: 'contact_name' },
-    { title: 'שעת התחלה', dataIndex: 'start_time', render: text => text?.slice(0, 5) || '' },
-    { title: 'שעת סיום', dataIndex: 'end_time', render: text => text?.slice(0, 5) || '' },
-    { title: 'כמות אוטובוסים', dataIndex: 'bus_quantity' },
-    { title: 'חברה מבצעת', dataIndex: 'company_name', render: text => text || 'לא שובץ' },
-    { title: 'סטטוס', dataIndex: 'tags', render: (_, record) => updateTags(record).join(', ') },
-    { title: 'מחיר ליחידה', dataIndex: 'price_per_bus_customer' },
-    { title: 'סה״כ שולם', dataIndex: 'total_paid_customer' },
+    { title: "תאריך", dataIndex: "order_date", render: formatDate },
+    { title: "שם לקוח", dataIndex: "customer_name" },
+    { title: "איש קשר", dataIndex: "contact_name" },
+    {
+      title: "שעת התחלה",
+      dataIndex: "start_time",
+      render: (text) => text?.slice(0, 5) || "",
+    },
+    {
+      title: "שעת סיום",
+      dataIndex: "end_time",
+      render: (text) => text?.slice(0, 5) || "",
+    },
+    { title: "כמות אוטובוסים", dataIndex: "bus_quantity" },
+    {
+      title: "חברה מבצעת",
+      dataIndex: "company_name",
+      render: (text) => text || "לא שובץ",
+    },
+    {
+      title: "סטטוס",
+      dataIndex: "tags",
+      render: (_, record) => updateTags(record).join(", "),
+    },
+    { title: "מחיר ליחידה", dataIndex: "price_per_bus_customer" },
+    { title: "סה״כ שולם", dataIndex: "total_paid_customer" },
   ];
-
-  if (isLoading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
-  if (error) {
-    return <div>{error.message}</div>;
-  }
-
-  const dataSource = data.map((item) => ({
-    ...item,
-    key: item.order_id,
-  }));
 
   const columns = [
     {
@@ -185,7 +209,7 @@ function OrderTable({ tableType }) {
       responsive: ["md"],
     },
     {
-      title: "תגיות",
+      title: "סטטוס",
       key: "tags",
       render: (_, record) => (
         <div>
@@ -222,48 +246,60 @@ function OrderTable({ tableType }) {
     },
   };
 
-  const handleTableChange = (pagination, filters, sorter) => {
+  const handleTableChange = (filters) => {
     setTableFilters(filters);
   };
 
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+
   return (
     <div>
-      {tableType === "past" && (
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          justifyContent: 'center', 
-          marginBottom: '20px',
-          padding: '10px'
-        }}>
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '24px'
-          }}>
-            <h1 style={{ 
-              margin: 0,
-              fontSize: '24px',
-              fontFamily: 'Rubik, sans-serif',
-              fontWeight: '500'
-            }}>{`הזמנות חודש ${month}/${year}`}</h1>
-            
-            <ChooseYearAndMonth
-              year={year}
-              month={month}
-              setYear={setYear}
-              setMonth={setMonth}
-            />
-          </div>
-        </div>
-      )}
-      
-      <div style={{ 
-        marginBottom: 16,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: "20px",
+          padding: "10px",
+        }}
+      >
+        <h1
+          style={{
+            margin: 0,
+            fontSize: "24px",
+            fontFamily: "Rubik, sans-serif",
+            fontWeight: "500",
+          }}
+        >
+          {getTableTitle()}
+        </h1>
+      </div>
+
+      <div
+        style={{
+          marginBottom: 16,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Input.Search
           placeholder="חיפוש..."
           allowClear
@@ -272,14 +308,22 @@ function OrderTable({ tableType }) {
           onChange={(e) => setSearchText(e.target.value)}
           style={{ maxWidth: 300 }}
         />
-        
-        <ExportToExcel
-          data={getFilteredData()}
-          columns={exportColumns}
-          fileName={`הזמנות_${tableType}`}
-          disabled={getFilteredData().length === 0}
-          tableFilters={tableFilters}
-        />
+
+        <div style={{ display: "flex", gap: "8px" }}>
+          <ExportToPDF
+            data={getFilteredData()}
+            columns={exportColumns}  // שימוש ישיר ב-exportColumns
+            disabled={getFilteredData().length === 0}
+            title={getTableTitle()}
+          />
+          <ExportToExcel
+            data={getFilteredData()}
+            columns={exportColumns}
+            fileName={`הזמנות_`}
+            disabled={getFilteredData().length === 0}
+            tableFilters={tableFilters}
+          />
+        </div>
       </div>
 
       <ConfigProvider direction="rtl" locale={heIL}>

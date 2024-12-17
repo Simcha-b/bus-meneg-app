@@ -17,7 +17,7 @@ function HomePageAdmin() {
   const actionItems = [
     { title: 'נסיעות', icon: <DirectionsBusIcon />, path: '/orders', color: 'primary.main' },
     { title: 'לקוחות', icon: <GroupIcon />, path: '/customers', color: 'secondary.main' },
-    { title: 'ספקים', icon: <BusinessIcon />, path: '/bus-company', color: 'success.main' },
+      { title: 'ספקים', icon: <BusinessIcon />, path: '/bus-company', color: 'success.main' },
     { title: 'הזמנה חדשה', icon: <AddCircleIcon />, path: '/orders/new', color: 'warning.main' },
     { title: 'דוחות', icon: <AssessmentIcon />, path: '/reports', color: 'info.main' },
   ];

@@ -308,9 +308,9 @@ const CustomersTable = () => {
   return (
     <ConfigProvider direction="rtl" locale={heIL}>
       <Spin spinning={loading} tip="טוען נתונים...">
+      <AddNewCustomer customers={customers} setCustomers={setCustomers} />  
         <Box>
-          <Box mb={2} display="flex" gap={2} flexWrap="wrap">
-            <AddNewCustomer customers={customers} setCustomers={setCustomers} />
+          <Box mb={2} display="flex" gap={2} flexWrap="wrap"justifyContent="center" >
             <Input.Search
               placeholder="חיפוש לקוח..."
               onChange={(e) => setSearchText(e.target.value)}
@@ -427,7 +427,7 @@ const CustomersTable = () => {
             footer={[
               <ExportToExcel
                 key="export"
-                fileName={`נסיעות_${selectedCustomerName}`}
+                fileName={`נסיעות ${selectedCustomerName}`}
                 data={prepareOrdersForExport()}
                 columns={ordersExportColumns}
                 buttonText="ייצא לאקסל"
@@ -523,7 +523,7 @@ const CustomersTable = () => {
           </Modal>
           <Box mt={2}>
             <ExportToExcel
-              fileName="דוח_חובות"
+              fileName="דוח חובות"
               data={prepareDebtsForExport()}
               columns={debtsExportColumns}
               buttonText="ייצא דוח חובות"

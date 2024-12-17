@@ -15,35 +15,35 @@ const dummyData = [
 ];
 
 export function TrafficReports() {
-  const [trafficReports, setTrafficReports] = useState([]);
+  const [trafficReports, setTrafficReports] = useState(dummyData);
   const containerRef = useRef(null);
 
-  const fetchReports = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/api/orders/traffic-reports`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error("שגיאה בבקשת הנתונים");
-      }
-      const data = await response.json();
-      setTrafficReports(dummyData);
-    } catch (error) {
-      console.error("שגיאה בקריאת הדיווחים:", error);
-      setTrafficReports(dummyData);
-    }
-  };
+  // const fetchReports = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `${API_URL}/api/orders/traffic-reports`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       }
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error("שגיאה בבקשת הנתונים");
+  //     }
+  //     const data = await response.json();
+  //     setTrafficReports(dummyData);
+  //   } catch (error) {
+  //     console.error("שגיאה בקריאת הדיווחים:", error);
+  //     setTrafficReports(dummyData);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
+  // useEffect(() => {
+  //   fetchReports();
+  // }, []);
 
   const handleMouseLeave = () => {
     if (containerRef.current) {

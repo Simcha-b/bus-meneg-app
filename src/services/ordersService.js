@@ -1,5 +1,5 @@
 const API_URL = process.env.REACT_APP_API_URL;
-const token = localStorage.getItem("token");
+const token = sessionStorage.getItem("token");
 
 export const getOrders = async () => {
   const response = await fetch(`${API_URL}/api/orders`, {

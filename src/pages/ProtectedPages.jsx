@@ -4,7 +4,7 @@ import { Navigate, Outlet } from "react-router-dom";
 function ProtectedPages() {
   // const userString = localStorage.getItem("user");
   // const user = userString ? JSON.parse(userString) : null;
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   if (!token) {
     return <Navigate to="/login" />;

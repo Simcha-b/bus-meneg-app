@@ -41,7 +41,7 @@ function Heder() {
   const [userPhoto, setUserPhoto] = React.useState("");
 
   React.useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(sessionStorage.getItem("user"));
     if (user) {
       setUserName(user.name || user.email.split("@")[0]);
       setUserPhoto(user.photoURL || user);
@@ -77,7 +77,7 @@ function Heder() {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     navigate("/login");
   };
 

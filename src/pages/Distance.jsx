@@ -1,13 +1,41 @@
-import { Button, Input, Box, Stack, Alert } from "@mui/material";
-import React, { useState } from "react";
+import { Button, Box, Stack, Alert, Autocomplete, TextField } from "@mui/material";
+import React, { useState, useEffect } from "react";
 const API_URL = process.env.REACT_APP_API_URL;
-const token = localStorage.getItem("token");
 
 function Distance() {
   const [distance, setDistance] = useState("");
-  const [locations, setLocations] = useState(["", ""]); // Initialize with two empty inputs
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [locations, setLocations] = useState(["", ""]); 
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [cities, setCities] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await fetch(
+          "https://data.gov.il/api/3/action/datastore_search?resource_id=d4901968-dad3-4845-a9b0-a57d027f11ab&limit=1500"
+        );
+        const data = await response.json();
+        if (data.success && data.result.records) {
+          // Extract unique city names and trim whitespace
+          const cityNames = [...new Set(
+            data.result.records
+              .map(record => record.שם_ישוב.trim())
+              .filter(name => name) // Remove empty strings
+          )];
+          setCities(cityNames.sort());
+        }
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+        setError("שגיאה בטעינת רשימת הערים");
+      } finally {
+        setCitiesLoading(false);
+      }
+    };
+
+    fetchCities();
+  }, []);
 
   const addLocationField = () => {
     // Insert new empty location before the last element (destination)
@@ -19,9 +47,9 @@ function Distance() {
     setLocations(newLocations);
   };
 
-  const handleLocationChange = (index, value) => {
+  const handleLocationChange = (index, newValue) => {
     const newLocations = [...locations];
-    newLocations[index] = value;
+    newLocations[index] = newValue || "";
     setLocations(newLocations);
   };
 
@@ -50,7 +78,7 @@ function Distance() {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -110,17 +138,30 @@ function Distance() {
             key={index}
             sx={{ display: "flex", gap: 1, alignItems: "center" }}
           >
-            <Input
+            <Autocomplete
               fullWidth
-              placeholder={
-                index === 0
-                  ? "נקודת התחלה"
-                  : index === locations.length - 1
-                  ? "יעד"
-                  : `נקודת ביניים ${index}`
-              }
+              freeSolo
+              options={cities}
+              loading={citiesLoading}
               value={loc}
-              onChange={(e) => handleLocationChange(index, e.target.value)}
+              onChange={(event, newValue) => handleLocationChange(index, newValue)}
+              onInputChange={(event, newValue) => {
+                if (event) {
+                  handleLocationChange(index, newValue);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  placeholder={
+                    index === 0
+                      ? "נקודת התחלה"
+                      : index === locations.length - 1
+                      ? "יעד"
+                      : `נקודת ביניים ${index}`
+                  }
+                />
+              )}
             />
             {locations.length > 2 &&
               index !== 0 &&

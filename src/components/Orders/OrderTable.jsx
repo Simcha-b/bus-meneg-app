@@ -34,6 +34,29 @@ function OrderTable({ viewType, selectedDate }) {
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [tableFilters, setTableFilters] = useState({});
 
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.warn("No token found.");
+      return;
+    }
+    fetchOrders();
+  }, [selectedDate, viewType]);
+
+  const fetchOrders = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const orders = await getOrders();
+      const filteredOrders = filterOrdersByDate(orders);
+      setData(filteredOrders);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filterOrdersByDate = (orders) => {
     return orders.filter((order) => {
       const orderDate = dayjs(order.order_date);
@@ -59,24 +82,6 @@ function OrderTable({ viewType, selectedDate }) {
         return "הזמנות";
     }
   };
-
-  const fetchOrders = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const orders = await getOrders();
-      const filteredOrders = filterOrdersByDate(orders);
-      setData(filteredOrders);
-    } catch (error) {
-      setError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrders();
-  }, [selectedDate, viewType]);
 
   const updateTags = (order) => {
     let tags = [];
@@ -259,7 +264,7 @@ function OrderTable({ viewType, selectedDate }) {
           alignItems: "center",
           height: "100vh",
           flexDirection: "column",
-          gap: "16px"
+          gap: "16px",
         }}
       >
         <Spin size="large" />
@@ -269,6 +274,7 @@ function OrderTable({ viewType, selectedDate }) {
   }
 
   if (error) {
+    console.log("=====>", error);
     return <div>{error.message}</div>;
   }
 
@@ -315,7 +321,7 @@ function OrderTable({ viewType, selectedDate }) {
         <div style={{ display: "flex", gap: "8px" }}>
           <ExportToPDF
             data={getFilteredData()}
-            columns={exportColumns}  // שימוש ישיר ב-exportColumns
+            columns={exportColumns} // שימוש ישיר ב-exportColumns
             disabled={getFilteredData().length === 0}
             title={getTableTitle()}
           />
@@ -334,7 +340,7 @@ function OrderTable({ viewType, selectedDate }) {
           loading={{
             spinning: isLoading,
             tip: "טוען נתונים...",
-            size: "large"
+            size: "large",
           }}
           columns={columns}
           dataSource={getFilteredData().map((item) => ({

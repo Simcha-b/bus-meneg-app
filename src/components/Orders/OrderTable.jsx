@@ -294,10 +294,11 @@ function OrderTable({ viewType, selectedDate }) {
         style={{
           marginBottom: 16,
           display: "flex",
-          flexDirection: window.innerWidth <= 600 ? "column" : "row",
+          flexDirection: window.innerWidth <= 768 ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: window.innerWidth <= 600 ? "stretch" : "center",
-          gap: "16px"
+          alignItems: "stretch",
+          gap: "10px",
+          width: "100%"
         }}
       >
         <Input.Search
@@ -306,20 +307,26 @@ function OrderTable({ viewType, selectedDate }) {
           enterButton
           onSearch={(value) => setSearchText(value)}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ width: '50%', maxWidth: window.innerWidth <= 600 ? '100%' : 300 }}
+          style={{ 
+            width: window.innerWidth <= 768 ? '100%' : '300px',
+            marginBottom: window.innerWidth <= 768 ? '10px' : '0'
+          }}
         />
 
         <div style={{ 
           display: "flex", 
           gap: "8px",
-          justifyContent: window.innerWidth <= 600 ? "stretch" : "flex-end"
+          width: window.innerWidth <= 768 ? '100%' : 'auto'
         }}>
           <ExportToPDF
             data={getFilteredData()}
             columns={exportColumns}
             disabled={getFilteredData().length === 0}
             title={getTableTitle()}
-            style={{ flex: window.innerWidth <= 600 ? 1 : 'initial' }}
+            style={{ 
+              flex: window.innerWidth <= 768 ? 1 : 'initial',
+              minWidth: window.innerWidth <= 768 ? '120px' : 'auto'
+            }}
           />
           <ExportToExcel
             data={getFilteredData()}
@@ -327,7 +334,10 @@ function OrderTable({ viewType, selectedDate }) {
             fileName={`הזמנות_`}
             disabled={getFilteredData().length === 0}
             tableFilters={tableFilters}
-            style={{ flex: window.innerWidth <= 600 ? 1 : 'initial' }}
+            style={{ 
+              flex: window.innerWidth <= 768 ? 1 : 'initial',
+              minWidth: window.innerWidth <= 768 ? '120px' : 'auto'
+            }}
           />
         </div>
       </div>
@@ -345,13 +355,14 @@ function OrderTable({ viewType, selectedDate }) {
             key: item.order_id,
           }))}
           bordered={true}
-          scroll={{ x: true }}
+          scroll={{ x: "max-content" }}
           size={window.innerWidth <= 768 ? "small" : "middle"}
           pagination={{
             responsive: true,
             position: ['bottomCenter'],
             showSizeChanger: window.innerWidth > 768,
             showQuickJumper: window.innerWidth > 768,
+            defaultPageSize: window.innerWidth <= 768 ? 10 : 20,
           }}
           expandable={{
             expandedRowRender: (record) => (

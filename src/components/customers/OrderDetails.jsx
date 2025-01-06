@@ -6,23 +6,23 @@ import { formatDate } from "../../services/ordersService";
 const OrderDetails = ({ order, fetchOrders }) => {
   return (
     <Box sx={{
-      p: { xs: 1, sm: 2 },
+      p: { xs: 0.5, sm: 1, md: 2 },
       maxWidth: '100%',
       overflowX: 'auto'
     }}>
       <Card>
         <Descriptions
           bordered
-          column={{ xs: 1, sm: 2, md: 3 }}
-          size="small"
+          column={{ xs: 1, sm: 1, md: 2, lg: 3 }}
+          size={window.innerWidth <= 768 ? "small" : "default"}
           labelStyle={{ 
             fontWeight: 'bold',
             backgroundColor: '#fafafa',
-            width: '150px',
-            padding: '8px 16px'
+            width: window.innerWidth <= 768 ? '100px' : '150px',
+            padding: window.innerWidth <= 768 ? '4px 8px' : '8px 16px'
           }}
           contentStyle={{
-            padding: '8px 16px'
+            padding: window.innerWidth <= 768 ? '4px 8px' : '8px 16px'
           }}
         >
           {/* פרטי הזמנה בסיסיים */}
@@ -41,8 +41,7 @@ const OrderDetails = ({ order, fetchOrders }) => {
           <Descriptions.Item label="טלפון">{order.contact_phone}</Descriptions.Item>
 
           {/* מיקומים */}
-          <Descriptions.Item label="נקודת איסוף">{order.pickup_location}</Descriptions.Item>
-          <Descriptions.Item label="יעד">{order.destination}</Descriptions.Item>
+          <Descriptions.Item label="פרטי הנסיעה">{order.trip_details}</Descriptions.Item>
           <Descriptions.Item label="חברה מבצעת">{order.company_name || 'לא שובץ'}</Descriptions.Item>
 
           {/* פרטי תשלום */}

@@ -1,11 +1,10 @@
 const API_URL = process.env.REACT_APP_API_URL;
-const token = sessionStorage.getItem("token");
 export const getCustomers = async () => {
   const response = await fetch(`${API_URL}/api/customers`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   if (!response.ok) {
@@ -20,7 +19,7 @@ export const getCustomerById = async (id) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   return await response.json();
@@ -33,7 +32,7 @@ export const addNewCustomer = async (newCustomer) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
     body: JSON.stringify(newCustomer),
   });

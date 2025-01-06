@@ -19,51 +19,64 @@ function Orders() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 2 }}>
       <Box sx={{
         display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: 3,
-        mb: 4,
+        flexDirection: "column",
+        gap: 2,
+        mb: 3,
+        maxWidth: "100%",
+        margin: "0 auto",
       }}>
-        <ToggleButtonGroup
-          value={viewType}
-          exclusive
-          onChange={handleViewTypeChange}
-          aria-label="view type selection"
-          sx={{
-            backgroundColor: 'background.paper',
-            boxShadow: 1,
-            borderRadius: 2,
-            '& .MuiToggleButton-root': {
-              px: 3,
-              py: 1.5,
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              '&.Mui-selected': {
-                backgroundColor: 'primary.main',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: 'primary.dark',
+        {/* Date Selection Controls */}
+        <Box sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          width: "100%",
+          maxWidth: { xs: "100%", sm: "400px" },
+          margin: "0 auto",
+        }}>
+          <ToggleButtonGroup
+            value={viewType}
+            exclusive
+            onChange={handleViewTypeChange}
+            aria-label="view type selection"
+            sx={{
+              width: "100%",
+              '& .MuiToggleButton-root': {
+                flex: 1,
+                py: 1,
+                fontSize: '0.9rem',
+                fontWeight: 500,
+                '&.Mui-selected': {
+                  backgroundColor: 'primary.main',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                  }
                 }
               }
-            }
-          }}
-        >
-          <ToggleButton value="month">חודש</ToggleButton>
-          <ToggleButton value="week">שבוע</ToggleButton>
-          <ToggleButton value="day">יום</ToggleButton>
-        </ToggleButtonGroup>
-        <ConfigProvider direction="rtl" locale={heIL}>
-        <DatePicker
-          picker={viewType === "month" ? "month" : viewType === "week" ? "week" : "date"}
-          format={viewType === "month" ? "MM/YYYY" : "DD/MM/YYYY"}
-          onChange={(date) => setSelectedDate(date ? date : dayjs())}
-          value={selectedDate}
-          style={{ width: 200 }}
-        />
-        </ConfigProvider >
+            }}
+          >
+            <ToggleButton value="month">חודש</ToggleButton>
+            <ToggleButton value="week">שבוע</ToggleButton>
+            <ToggleButton value="day">יום</ToggleButton>
+          </ToggleButtonGroup>
+
+          <ConfigProvider direction="rtl" locale={heIL}>
+            <DatePicker
+              picker={viewType === "month" ? "month" : viewType === "week" ? "week" : "date"}
+              format={viewType === "month" ? "MM/YYYY" : "DD/MM/YYYY"}
+              onChange={(date) => setSelectedDate(date ? date : dayjs())}
+              value={selectedDate}
+              style={{
+                width: "50%",
+                height: "40px"
+              }}
+            />
+          </ConfigProvider>
+        </Box>
       </Box>
 
       <OrderTable viewType={viewType} selectedDate={selectedDate} />

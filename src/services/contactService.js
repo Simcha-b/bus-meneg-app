@@ -1,11 +1,10 @@
 const API_URL = process.env.REACT_APP_API_URL;
-const token = sessionStorage.getItem("token");
 export const getContacts = async () => {
   const response = await fetch(`${API_URL}/api/contacts`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   const data = await response.json();
@@ -17,7 +16,7 @@ export const getContactsByCustomerId = async (id) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   const data = await response.json();
@@ -31,7 +30,7 @@ export const insertContact = async (contact, id) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
       body: JSON.stringify(contact),
     }

@@ -1,6 +1,4 @@
 const API_URL = process.env.REACT_APP_API_URL;
-const token = sessionStorage.getItem("token");
-
 
 export const getOrders = async () => {
   if (!sessionStorage.getItem("token")) {
@@ -34,7 +32,7 @@ export const getFutureOrders = async () => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   const data = await response.json();
@@ -44,11 +42,11 @@ export const getFutureOrders = async () => {
 export const getOrdersByDate = async (year, month) => {
   try {
     const url = `${API_URL}/api/orders/byDate?year=${year}&month=${month}`;
-    const response = await fetch(url,  {
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
     });
 
@@ -69,11 +67,11 @@ export const getOrdersByDate = async (year, month) => {
 //get order by id
 export const getOrderById = async (orderId) => {
   try {
-    const response = await fetch(`${API_URL}/api/orders/${orderId}`,  {
+    const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
       },
     });
     const data = await response.json();
@@ -86,11 +84,11 @@ export const getOrderById = async (orderId) => {
 
 //get orders by Customer Id
 export const getOrdersByCustomerId = async (id) => {
-  const response = await fetch(`${API_URL}/api/orders/customer/${id}`,  {
+  const response = await fetch(`${API_URL}/api/orders/customer/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   const data = await response.json();
@@ -99,11 +97,11 @@ export const getOrdersByCustomerId = async (id) => {
 
 //get orders by Company Id
 export const getOrdersByCompanyId = async (id) => {
-  const response = await fetch(`${API_URL}/api/orders/company/${id}`,  {
+  const response = await fetch(`${API_URL}/api/orders/company/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   const data = await response.json();
@@ -117,7 +115,7 @@ export const sendNewOrder = async (body) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
     body: JSON.stringify(body),
   });
@@ -130,7 +128,7 @@ export const updateOrder = async (id, body) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
     body: JSON.stringify(body),
   });
@@ -146,7 +144,7 @@ export async function updateOrderStatus(id, status) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
     body: JSON.stringify({ status }),
   });
@@ -160,7 +158,7 @@ export const deleteOrder = async (id) => {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${sessionStorage.getItem("token")}`,
     },
   });
   const data = await response.json();

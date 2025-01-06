@@ -23,7 +23,7 @@ const pages = [
   { name: "ספקים", path: "/bus-company" },
   { name: "הזמנה חדשה", path: "/orders/new" },
   { name: "דוחות", path: "/reports" },
-  { name: "סטטיסטיקות", path: "/dashboard" },
+  // { name: "סטטיסטיקות", path: "/dashboard" },
 ];
 const settings = [
   { name: "פרופיל", action: "profile" },

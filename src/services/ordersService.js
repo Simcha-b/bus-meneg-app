@@ -1,17 +1,33 @@
 const API_URL = process.env.REACT_APP_API_URL;
 const token = sessionStorage.getItem("token");
 
+
 export const getOrders = async () => {
-  const response = await fetch(`${API_URL}/api/orders`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });  
-  const data = await response.json();
-  return data;
+  if (!sessionStorage.getItem("token")) {
+    throw new Error("User is not authenticated.");
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/orders`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch orders:", error.message);
+    throw error; // תזרוק את השגיאה כדי שהקריאה לפונקציה תוכל להתמודד איתה
+  }
 };
+
 //get orders future
 export const getFutureOrders = async () => {
   const response = await fetch(`${API_URL}/api/orders/future`, {

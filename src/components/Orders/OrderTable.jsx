@@ -163,7 +163,6 @@ function OrderTable({ viewType, selectedDate }) {
         multiple: 3,
       },
       render: (text) => formatDate(text),
-      responsive: ["sm"],
     },
     {
       title: "שם לקוח",
@@ -241,16 +240,6 @@ function OrderTable({ viewType, selectedDate }) {
     },
   ];
 
-  const rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
-    },
-  };
-
   const handleTableChange = (filters) => {
     setTableFilters(filters);
   };
@@ -305,8 +294,10 @@ function OrderTable({ viewType, selectedDate }) {
         style={{
           marginBottom: 16,
           display: "flex",
+          flexDirection: window.innerWidth <= 600 ? "column" : "row",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: window.innerWidth <= 600 ? "stretch" : "center",
+          gap: "16px"
         }}
       >
         <Input.Search
@@ -315,15 +306,20 @@ function OrderTable({ viewType, selectedDate }) {
           enterButton
           onSearch={(value) => setSearchText(value)}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ maxWidth: 300 }}
+          style={{ width: '50%', maxWidth: window.innerWidth <= 600 ? '100%' : 300 }}
         />
 
-        <div style={{ display: "flex", gap: "8px" }}>
+        <div style={{ 
+          display: "flex", 
+          gap: "8px",
+          justifyContent: window.innerWidth <= 600 ? "stretch" : "flex-end"
+        }}>
           <ExportToPDF
             data={getFilteredData()}
-            columns={exportColumns} // שימוש ישיר ב-exportColumns
+            columns={exportColumns}
             disabled={getFilteredData().length === 0}
             title={getTableTitle()}
+            style={{ flex: window.innerWidth <= 600 ? 1 : 'initial' }}
           />
           <ExportToExcel
             data={getFilteredData()}
@@ -331,6 +327,7 @@ function OrderTable({ viewType, selectedDate }) {
             fileName={`הזמנות_`}
             disabled={getFilteredData().length === 0}
             tableFilters={tableFilters}
+            style={{ flex: window.innerWidth <= 600 ? 1 : 'initial' }}
           />
         </div>
       </div>
@@ -348,14 +345,23 @@ function OrderTable({ viewType, selectedDate }) {
             key: item.order_id,
           }))}
           bordered={true}
-          scroll={{ x: "max-content" }}
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
+          scroll={{ x: true }}
+          size={window.innerWidth <= 768 ? "small" : "middle"}
+          pagination={{
+            responsive: true,
+            position: ['bottomCenter'],
+            showSizeChanger: window.innerWidth > 768,
+            showQuickJumper: window.innerWidth > 768,
           }}
           expandable={{
             expandedRowRender: (record) => (
-              <OrderDetails order={record} fetchOrders={fetchOrders} />
+              <div style={{ 
+                margin: 0,
+                padding: '0 8px',
+                backgroundColor: '#fafafa' 
+              }}>
+                <OrderDetails order={record} fetchOrders={fetchOrders} />
+              </div>
             ),
             expandedRowKeys,
             onExpandedRowsChange: (newExpandedRows) => {

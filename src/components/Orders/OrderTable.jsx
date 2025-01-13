@@ -49,7 +49,8 @@ function OrderTable({ viewType, selectedDate }) {
     try {
       const orders = await getOrders();
       const filteredOrders = filterOrdersByDate(orders);
-      setData(filteredOrders);
+      const sortOrders = sortOrdersByDate(filteredOrders);
+      setData(sortOrders);
     } catch (error) {
       setError(error);
     } finally {
@@ -63,7 +64,14 @@ function OrderTable({ viewType, selectedDate }) {
       return orderDate.isSame(selectedDate, viewType);
     });
   };
-
+  const sortOrdersByDate = (orders) => {
+    const sortOrders = orders.sort((a, b) => {
+      const dateA = new Date(a.order_date.split("T")[0]);
+      const dateB = new Date(b.order_date.split("T")[0]);
+      return dateA - dateB;
+    });
+    return sortOrders;
+  };
   const getTableTitle = () => {
     if (!selectedDate) return "הזמנות";
     switch (viewType) {
@@ -143,7 +151,7 @@ function OrderTable({ viewType, selectedDate }) {
       dataIndex: "tags",
       render: (_, record) => updateTags(record).join(", "),
     },
-    { title: "מחיר ליחידה", dataIndex: "price_per_bus_customer" },
+    { title: "מחיר", dataIndex: "price_per_bus_customer" },
     { title: "סה״כ שולם", dataIndex: "total_paid_customer" },
   ];
 
@@ -298,7 +306,7 @@ function OrderTable({ viewType, selectedDate }) {
           justifyContent: "space-between",
           alignItems: "stretch",
           gap: "10px",
-          width: "100%"
+          width: "100%",
         }}
       >
         <Input.Search
@@ -307,25 +315,27 @@ function OrderTable({ viewType, selectedDate }) {
           enterButton
           onSearch={(value) => setSearchText(value)}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ 
-            width: window.innerWidth <= 768 ? '100%' : '300px',
-            marginBottom: window.innerWidth <= 768 ? '10px' : '0'
+          style={{
+            width: window.innerWidth <= 768 ? "100%" : "300px",
+            marginBottom: window.innerWidth <= 768 ? "10px" : "0",
           }}
         />
 
-        <div style={{ 
-          display: "flex", 
-          gap: "8px",
-          width: window.innerWidth <= 768 ? '100%' : 'auto'
-        }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            width: window.innerWidth <= 768 ? "100%" : "auto",
+          }}
+        >
           <ExportToPDF
             data={getFilteredData()}
             columns={exportColumns}
             disabled={getFilteredData().length === 0}
             title={getTableTitle()}
-            style={{ 
-              flex: window.innerWidth <= 768 ? 1 : 'initial',
-              minWidth: window.innerWidth <= 768 ? '120px' : 'auto'
+            style={{
+              flex: window.innerWidth <= 768 ? 1 : "initial",
+              minWidth: window.innerWidth <= 768 ? "120px" : "auto",
             }}
           />
           <ExportToExcel
@@ -334,9 +344,9 @@ function OrderTable({ viewType, selectedDate }) {
             fileName={`הזמנות_`}
             disabled={getFilteredData().length === 0}
             tableFilters={tableFilters}
-            style={{ 
-              flex: window.innerWidth <= 768 ? 1 : 'initial',
-              minWidth: window.innerWidth <= 768 ? '120px' : 'auto'
+            style={{
+              flex: window.innerWidth <= 768 ? 1 : "initial",
+              minWidth: window.innerWidth <= 768 ? "120px" : "auto",
             }}
           />
         </div>
@@ -359,18 +369,20 @@ function OrderTable({ viewType, selectedDate }) {
           size={window.innerWidth <= 768 ? "small" : "middle"}
           pagination={{
             responsive: true,
-            position: ['bottomCenter'],
+            position: ["bottomCenter"],
             showSizeChanger: window.innerWidth > 768,
             showQuickJumper: window.innerWidth > 768,
             defaultPageSize: window.innerWidth <= 768 ? 10 : 20,
           }}
           expandable={{
             expandedRowRender: (record) => (
-              <div style={{ 
-                margin: 0,
-                padding: '0 8px',
-                backgroundColor: '#fafafa' 
-              }}>
+              <div
+                style={{
+                  margin: 0,
+                  padding: "0 8px",
+                  backgroundColor: "#fafafa",
+                }}
+              >
                 <OrderDetails order={record} fetchOrders={fetchOrders} />
               </div>
             ),

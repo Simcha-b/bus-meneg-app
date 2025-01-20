@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getCompanies, addCompany } from "../../services/companiesService";
+import { getCompanies, addCompany, deleteCompany } from "../../services/companiesService";
 import { getOrdersByCompanyId } from "../../services/ordersService";
 import {
   Button,
@@ -8,7 +8,11 @@ import {
   Modal,
   Form,
   List,
+  message,
+  Popconfirm,
+  Dropdown
 } from "antd";
+import { MoreOutlined } from '@ant-design/icons';
 import heIL from "antd/lib/locale/he_IL";
 import { Box } from "@mui/system";
 import CompanyForm from "./CompanyForm";
@@ -56,13 +60,15 @@ const CompanyTable = () => {
         };
         
         const savedCompany = await addCompany(newCompanyData);
-        setCompanies([...companies, savedCompany]);
+        await fetchCompanies(); // רענון הטבלה
+        message.success('החברה נוספה בהצלחה');
       }
       setIsCompanyModalOpen(false);
       setSelectedCompany(null);
       form.resetFields();
     } catch (error) {
       console.error("Failed to save company:", error);
+      message.error('שגיאה בהוספת החברה. אנא נסה שנית.');
     }
   };
 
@@ -91,51 +97,94 @@ const CompanyTable = () => {
     setTripDetails([]);
   };
 
+  const handleDeleteCompany = async (company) => {
+    try {
+      await deleteCompany(company.company_id);
+      await fetchCompanies();
+      message.success('החברה נמחקה בהצלחה');
+    } catch (error) {
+      console.error("Failed to delete company:", error);
+      message.error('שגיאה במחיקת החברה. אנא נסה שנית.');
+    }
+  };
+
   useEffect(() => {
     fetchCompanies();
   }, []);
+
+  const getActionsMenu = (record) => ({
+    items: [
+      {
+        key: '1',
+        label: 'הצג פירוט נסיעות',
+        onClick: () => handleShowTrips(record)
+      },
+      {
+        key: '2',
+        label: 'ערוך פרטי חברה',
+        onClick: () => handleEditCompany(record)
+      },
+      {
+        key: '3',
+        label: 'מחק חברה',
+        danger: true,
+        onClick: (e) => {
+          // מונע מהדרופדאון להיסגר לפני שמופיע הפופאפ
+          e.stopPropagation();
+          Modal.confirm({
+            title: 'מחיקת חברה',
+            content: 'האם אתה בטוח שברצונך למחוק את החברה?',
+            okText: 'כן',
+            cancelText: 'לא',
+            okType: 'danger',
+            onOk: () => handleDeleteCompany(record)
+          });
+        }
+      },
+    ]
+  });
 
   const columns = [
     {
       title: "שם",
       dataIndex: "company_name",
       key: "name",
-      width: "20%",
+      width: "25%",
+      responsive: ['xs', 'sm', 'md', 'lg', 'xl'],
     },
     {
       title: "אימייל",
       dataIndex: "contact_email",
       key: "email",
-      width: "15%",
+      width: "25%",
+      responsive: ['sm', 'md', 'lg', 'xl'],
     },
     {
       title: "טלפון",
       dataIndex: "contact_phone",
       key: "phone",
+      width: "25%",
+      responsive: ['sm', 'md', 'lg', 'xl'],
     },
     {
-      title: "ערוך פרטים",
-      key: "edit",
+      title: "פעולות",
+      key: "actions",
+      width: "15%",
+      responsive: ['xs', 'sm', 'md', 'lg', 'xl'],
       render: (_, record) => (
-        <Button onClick={() => handleEditCompany(record)}>
-          ערוך פרטי חברה
-        </Button>
+        <Dropdown
+          menu={getActionsMenu(record)}
+          trigger={['click']}
+        >
+          <Button type="text" icon={<MoreOutlined />} />
+        </Dropdown>
       ),
-    },
-    {
-      title: "הצג פירוט נסיעות",
-      key: "trips",
-      render: (_, record) => (
-        <Button onClick={() => handleShowTrips(record)}>
-          הצג פירוט נסיעות
-        </Button>
-      ),
-    },
+    }
   ];
 
   return (
     <ConfigProvider direction="rtl" locale={heIL}>
-      <Box>
+      <Box sx={{ overflowX: 'auto', width: '100%' }}>
         <Box mb={2}>
           <Button type="primary" onClick={handleAddNewCompany}>
             הוסף חברה חדשה
@@ -148,14 +197,26 @@ const CompanyTable = () => {
           }))}
           columns={columns}
           bordered={true}
+          scroll={{ x: 'max-content' }}
+          pagination={{
+            responsive: true,
+            position: ['bottomCenter'],
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} מתוך ${total} תוצאות`,
+          }}
         />
         <Modal
           title={selectedCompany ? "ערוך פרטי חברה" : "הוסף חברה חדשה"}
           open={isCompanyModalOpen}
           onCancel={handleCompanyModalClose}
           onOk={handleSaveCompany}
+          okText={selectedCompany ? "עדכן" : "הוסף"}
+          cancelText="בטל"
         >
-          <CompanyForm form={form} initialValues={selectedCompany} />
+          <CompanyForm 
+            form={form} 
+            initialValues={selectedCompany}
+          />
         </Modal>
         <Modal
           title="פירוט נסיעות"

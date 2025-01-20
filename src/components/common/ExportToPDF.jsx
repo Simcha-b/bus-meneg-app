@@ -17,53 +17,87 @@ Font.register({ family: "Alef", src: AlefRegular });
 const styles = StyleSheet.create({
   page: {
     flexDirection: "row",
-    backgroundColor: "#E4E4E4",
-    direction: "rtl", // Add RTL support
+    direction: "rtl",
   },
   section: {
-    margin: 10,
-    padding: 10,
+    margin: 20,
+    padding: 20,
     flexGrow: 1,
     direction: "rtl",
   },
   title: {
     fontFamily: "Alef",
-    fontSize: 24,
+    fontSize: 28,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 30,
+    color: "#2c3e50",
+    borderBottom: 2,
+    borderBottomColor: "#34495e",
+    paddingBottom: 10,
   },
   text: {
     fontFamily: "Alef",
     fontSize: 14,
     textAlign: "center",
     marginBottom: 20,
+    color: "#2c3e50",
   },
   table: {
     display: "flex",
     width: "100%",
     borderStyle: "solid",
     borderWidth: 1,
-    borderRightWidth: 0,
-    borderBottomWidth: 0,
+    borderColor: "#bdc3c7",
+    marginVertical: 15,
   },
   tableRow: {
     margin: "auto",
     flexDirection: "row",
+    minHeight: 35,
+  },
+  tableRowEven: {
+    backgroundColor: "#f8f9fa",
   },
   tableCol: {
-    width: "10%", // עדכון רוחב העמודות כדי שיתאימו לתצוגת landscape
+    width: "10%",
     borderStyle: "solid",
     borderWidth: 1,
-    borderLeftWidth: 0,
-    borderTopWidth: 0,
+    borderColor: "#bdc3c7",
+    justifyContent: "center",
+    padding: 8,
   },
   tableCell: {
     margin: 5,
     fontSize: 12,
     fontFamily: "Alef",
+    textAlign: "center",
   },
   tableHeader: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#34495e",
+  },
+  headerCell: {
+    margin: 5,
+    fontSize: 14,
+    fontFamily: "Alef",
+    color: "#ffffff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  footer: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    fontSize: 10,
+    color: "#95a5a6",
+  },
+  pageNumber: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    fontSize: 10,
+    color: "#95a5a6",
   },
 });
 
@@ -81,8 +115,8 @@ const PDFDocument = ({ data, columns, title = 'נתוני טבלה' }) => {
     );
   }
 
-  // נהפוך את סדר העמודות
   const reversedColumns = [...columns].reverse();
+  const currentDate = new Date().toLocaleDateString('he-IL');
 
   return (
     <Document>
@@ -94,13 +128,16 @@ const PDFDocument = ({ data, columns, title = 'נתוני טבלה' }) => {
             <View style={[styles.tableRow, styles.tableHeader]}>
               {reversedColumns.map((column, index) => (
                 <View style={styles.tableCol} key={index}>
-                  <Text style={styles.tableCell}>{column.title}</Text>
+                  <Text style={styles.headerCell}>{column.title}</Text>
                 </View>
               ))}
             </View>
             {/* Table Data */}
             {data.map((row, i) => (
-              <View style={styles.tableRow} key={i}>
+              <View style={[
+                styles.tableRow,
+                i % 2 === 0 ? styles.tableRowEven : {}
+              ]} key={i}>
                 {reversedColumns.map((column, index) => {
                   const value = column.render 
                     ? column.render(row[column.dataIndex], row)
@@ -117,6 +154,15 @@ const PDFDocument = ({ data, columns, title = 'נתוני טבלה' }) => {
               </View>
             ))}
           </View>
+          <Text style={styles.footer}>
+            {`הופק בתאריך: ${currentDate}`}
+          </Text>
+          <Text 
+            style={styles.pageNumber} 
+            render={({ pageNumber, totalPages }) => (
+              `${pageNumber} / ${totalPages}`
+            )} 
+          />
         </View>
       </Page>
     </Document>

@@ -90,7 +90,7 @@ function App() {
         <Router>
           <QueryClientProvider client={queryClient}>
             <Routes>
-              <Route path="/" element={<LandingPage />} />
+              <Route path="/" element ={<Navigate to="/login" />} />
               <Route path="/login" element={<Login />} />
               <Route element={<ProtectedPages />}>
                 <Route element={<Layout />}>

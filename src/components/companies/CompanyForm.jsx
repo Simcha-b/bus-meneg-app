@@ -1,18 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { Form, Input, Button } from "antd";
 
-const CompanyForm = ({ form, initialValues, onFinish }) => {
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (values) => {
-    setLoading(true);
-    try {
-      await onFinish(values);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+const CompanyForm = ({ form, initialValues }) => {
   React.useEffect(() => {
     if (initialValues) {
       form.setFieldsValue({
@@ -27,7 +16,7 @@ const CompanyForm = ({ form, initialValues, onFinish }) => {
   }, [initialValues, form]);
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+    <Form form={form} layout="vertical">
       <Form.Item
         name="name"
         label="שם"
@@ -45,21 +34,14 @@ const CompanyForm = ({ form, initialValues, onFinish }) => {
       <Form.Item
         name="email"
         label="אימייל"
-        rules={[{ required: true, message: "נא להזין אימייל" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         name="phone"
         label="טלפון"
-        rules={[{ required: true, message: "נא להזין טלפון" }]}
       >
         <Input />
-      </Form.Item>
-      <Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          {initialValues ? 'עדכן חברה' : 'הוסף חברה'}
-        </Button>
       </Form.Item>
     </Form>
   );

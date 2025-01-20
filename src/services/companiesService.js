@@ -29,3 +29,18 @@ export const addCompany = async (companyData) => {
   
   return response.json();
 };
+
+export const deleteCompany = async (companyId) => {
+  const response = await fetch(`${API_URL}/api/companies/${companyId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${sessionStorage.getItem("token")}`,
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to delete company');
+  }
+  
+  return true;
+};

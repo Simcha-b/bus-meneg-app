@@ -141,16 +141,17 @@ function OrderTable({ viewType, selectedDate }) {
       render: (text) => text?.slice(0, 5) || "",
     },
     { title: "כמות אוטובוסים", dataIndex: "bus_quantity" },
+    { title: "פרטי נסיעה", dataIndex: "trip_details" },
     {
       title: "חברה מבצעת",
       dataIndex: "company_name",
       render: (text) => text || "לא שובץ",
     },
-    {
-      title: "סטטוס",
-      dataIndex: "tags",
-      render: (_, record) => updateTags(record).join(", "),
-    },
+    // {
+    //   title: "סטטוס",
+    //   dataIndex: "tags",
+    //   render: (_, record) => updateTags(record).join(", "),
+    // },
     { title: "מחיר", dataIndex: "price_per_bus_customer" },
     { title: "סה״כ שולם", dataIndex: "total_paid_customer" },
   ];
@@ -248,7 +249,7 @@ function OrderTable({ viewType, selectedDate }) {
     },
   ];
 
-  const handleTableChange = (filters) => {
+  const handleTableChange = (pagination, filters, sorter) => {
     setTableFilters(filters);
   };
 
@@ -343,7 +344,7 @@ function OrderTable({ viewType, selectedDate }) {
             columns={exportColumns}
             fileName={`הזמנות_`}
             disabled={getFilteredData().length === 0}
-            tableFilters={tableFilters}
+            tableFilters={tableFilters}  // העברת הפילטרים
             style={{
               flex: window.innerWidth <= 768 ? 1 : "initial",
               minWidth: window.innerWidth <= 768 ? "120px" : "auto",
